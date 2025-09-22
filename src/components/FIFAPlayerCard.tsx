@@ -39,31 +39,32 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                   <div className="relative bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 p-1 rounded-2xl shadow-2xl">
                     <div className="bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 rounded-2xl p-4 sm:p-6 lg:p-8">
               {/* Card Header */}
-              <div className="flex items-start justify-between mb-8">
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-8 gap-4">
                 <div className="flex items-center gap-4 flex-1">
                   <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center text-2xl font-bold text-black border-4 border-amber-300 shadow-lg flex-shrink-0">
                     {data.personalInfo.kitNumber}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h1 className="text-3xl font-bold text-white tracking-wider">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-wider">
                       {data.personalInfo.name}
                     </h1>
-                    <p className="text-xl text-amber-200 font-semibold">
+                    <p className="text-lg sm:text-xl text-amber-200 font-semibold">
                       {data.personalInfo.position}
                     </p>
-                    <div className="flex items-center gap-4 text-sm text-amber-300">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-amber-300">
                       <span>🇮🇳 {data.personalInfo.nationality}</span>
                       <span>📍 {data.contact.location}</span>
+                      <span>🎂 {data.personalInfo.age} years</span>
                     </div>
                   </div>
                 </div>
                 
                 {/* Overall Rating */}
-                <div className="text-center flex-shrink-0 ml-6">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center mb-2 border-4 border-amber-300 shadow-lg mx-auto">
-                    <span className="text-2xl font-bold text-black">{data.stats.overall}</span>
+                <div className="text-center flex-shrink-0 lg:ml-6 self-center lg:self-start">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center mb-2 border-4 border-amber-300 shadow-lg mx-auto">
+                    <span className="text-xl sm:text-2xl font-bold text-black">{data.stats.overall}</span>
                   </div>
-                  <p className="text-sm text-amber-200 font-semibold">OVERALL</p>
+                  <p className="text-xs sm:text-sm text-amber-200 font-semibold">OVERALL</p>
                   <p className="text-xs text-amber-300">⭐ GOLD CARD ⭐</p>
                 </div>
               </div>
