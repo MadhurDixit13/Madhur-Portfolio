@@ -37,9 +37,13 @@ jobs:
         
       - name: Build Next.js app
         run: npm run build
+        env:
+          NODE_ENV: production
         
       - name: Export static site
         run: npm run export
+        env:
+          NODE_ENV: production
         
       - name: Setup Pages
         uses: actions/configure-pages@v4
