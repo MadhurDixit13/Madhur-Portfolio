@@ -27,13 +27,13 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
         <div className="absolute inset-0 bg-gray-900/30" />
       </div>
 
-      {/* Main Card Container */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+              {/* Main Card Container */}
+      <div className="relative z-10 flex items-center justify-center min-h-screen p-2 sm:p-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
-          className="w-full max-w-6xl mx-auto px-2 sm:px-4 lg:px-8"
+          className="w-full max-w-6xl mx-auto px-1 sm:px-4 lg:px-8"
         >
                   {/* FIFA Gold Card */}
                   <div className="relative bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 p-1 rounded-2xl shadow-2xl">
@@ -279,24 +279,24 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                 )}
 
                 {activeTab === 'education' && (
-                  <div className="education-grid grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="education-grid grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
                     {data.education.map((edu, index) => (
                       <motion.div
                         key={index}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className="bg-slate-800 rounded-lg p-4 sm:p-6 hover:bg-slate-700 transition-colors"
+                        className="bg-slate-800 rounded-lg p-4 sm:p-6 hover:bg-slate-700 transition-colors w-full min-w-0"
                       >
-                        <div className="flex items-start gap-3 sm:gap-4">
-                          <span className="text-3xl sm:text-4xl flex-shrink-0">{edu.logo}</span>
-                          <div className="flex-1 min-w-0">
-                            <h5 className="text-white font-bold text-lg sm:text-xl truncate">{edu.institution}</h5>
-                            <p className="text-amber-200 text-base sm:text-lg">{edu.degree}</p>
-                            <p className="text-amber-300 text-sm sm:text-base">{edu.duration}</p>
+                        <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4 w-full">
+                          <span className="text-3xl sm:text-4xl flex-shrink-0 self-center sm:self-start">{edu.logo}</span>
+                          <div className="flex-1 min-w-0 w-full">
+                            <h5 className="text-white font-bold text-lg sm:text-xl break-words leading-tight">{edu.institution}</h5>
+                            <p className="text-amber-200 text-sm sm:text-base break-words leading-tight mt-1">{edu.degree}</p>
+                            <p className="text-amber-300 text-xs sm:text-sm mt-1">{edu.duration}</p>
                             <p className="text-amber-300 text-xs sm:text-sm">{edu.location}</p>
-                            <div className="mt-2">
-                              <span className="bg-amber-500 text-black px-3 py-1 rounded-full text-sm font-bold">
+                            <div className="mt-3">
+                              <span className="bg-amber-500 text-black px-3 py-1 rounded-full text-xs sm:text-sm font-bold inline-block">
                                 GPA: {edu.gpa}
                               </span>
                             </div>
