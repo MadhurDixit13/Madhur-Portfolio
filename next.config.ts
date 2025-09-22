@@ -6,9 +6,9 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true
   },
-  // Configure for GitHub Pages deployment
-  basePath: process.env.NODE_ENV === 'production' ? '/Madhur_Portfolio' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/Madhur_Portfolio' : '',
+  // Configure for GitHub Pages deployment only (not Render)
+  basePath: process.env.NODE_ENV === 'production' && process.env.GITHUB_ACTIONS ? '/Madhur_Portfolio' : '',
+  assetPrefix: process.env.NODE_ENV === 'production' && process.env.GITHUB_ACTIONS ? '/Madhur_Portfolio' : '',
 };
 
 export default nextConfig;

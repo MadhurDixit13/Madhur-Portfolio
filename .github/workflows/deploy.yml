@@ -39,11 +39,13 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+          GITHUB_ACTIONS: true
         
       - name: Export static site
         run: npm run export
         env:
           NODE_ENV: production
+          GITHUB_ACTIONS: true
         
       - name: Setup Pages
         uses: actions/configure-pages@v4
