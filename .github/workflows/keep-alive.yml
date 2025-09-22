@@ -1,0 +1,22 @@
+name: Keep Render Instance Alive
+
+on:
+  schedule:
+    # Ping every 10 minutes to keep the instance active
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render instance
+        run: |
+          # Replace YOUR_RENDER_URL with your actual Render app URL
+          # Example: https://madhur-portfolio.onrender.com
+          curl -f "${{ secrets.RENDER_URL }}/health" || echo "Ping failed"
+        
+      - name: Log ping result
+        run: |
+          echo "Pinged Render instance at $(date)"
+          echo "This helps keep your free tier instance from spinning down due to inactivity"
