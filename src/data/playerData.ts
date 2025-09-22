@@ -339,8 +339,8 @@ export const playerData: PlayerData = {
       description: "A comprehensive comparison of AWS Athena and Redshift, exploring performance, cost, and use cases for different data warehouse scenarios.",
       url: "https://medium.com/@madhurdixit37/athena-vs-redshift-a-real-world-data-lake-vs-warehouse-comparison-using-covid-19-data-1c0c2560bc89",
       platform: "Medium",
-      date: "Dec 2024",
-      readTime: "12 min read",
+      date: "Mar 24, 2025",
+      readTime: "3 min read",
       tags: ["AWS", "Data Warehouse", "Analytics", "Cloud Computing"]
     },
     {
@@ -348,8 +348,8 @@ export const playerData: PlayerData = {
       description: "Exploring the development of a simplified distributed computing framework inspired by Apache Spark, focusing on core concepts and implementation.",
       url: "https://medium.com/@madhurdixit37/diving-under-the-hood-of-spark-with-minispark-a-pure-python-learning-playground-afe8fd21e90b",
       platform: "Medium",
-      date: "Nov 2024",
-      readTime: "15 min read",
+      date: "May 17, 2025",
+      readTime: "3 min read",
       tags: ["Distributed Computing", "Apache Spark", "Big Data", "System Design"]
     },
   ],
