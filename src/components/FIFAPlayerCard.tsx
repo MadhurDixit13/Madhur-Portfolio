@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Star, Trophy, Award, GraduationCap, Briefcase, Mail, Linkedin, Github, Phone, MapPin } from 'lucide-react';
+import { Trophy, Award, GraduationCap, Briefcase, Mail, Linkedin, Github, Phone, MapPin } from 'lucide-react';
 import { PlayerData } from '@/types/player';
 
 interface FIFAPlayerCardProps {
@@ -12,19 +12,6 @@ interface FIFAPlayerCardProps {
 export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
   const [activeTab, setActiveTab] = useState<'info' | 'clubs' | 'education' | 'projects'>('info');
 
-  const getRatingColor = (rating: number) => {
-    if (rating >= 90) return "text-green-400";
-    if (rating >= 80) return "text-yellow-400";
-    if (rating >= 70) return "text-orange-400";
-    return "text-red-400";
-  };
-
-  const getRatingBg = (rating: number) => {
-    if (rating >= 90) return "bg-green-500";
-    if (rating >= 80) return "bg-yellow-500";
-    if (rating >= 70) return "bg-orange-500";
-    return "bg-red-500";
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
@@ -152,7 +139,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                 ].map(({ id, label, icon: Icon }) => (
                   <button
                     key={id}
-                    onClick={() => setActiveTab(id as any)}
+                    onClick={() => setActiveTab(id as 'info' | 'clubs' | 'education' | 'projects')}
                             className={`nav-tab flex-shrink-0 flex items-center justify-center gap-1 py-2 px-2 sm:px-3 rounded-md transition-all text-xs whitespace-nowrap ${
                               activeTab === id
                                 ? 'bg-amber-500 text-black font-bold border-2 border-amber-300 shadow-lg'
@@ -176,10 +163,10 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                         PROFESSIONAL SUMMARY
                       </h4>
                       <p className="text-amber-200 text-sm leading-relaxed">
-                        I am a deep-lying playmaker on a tech team. By day, I'm an ML Infra Engineer who orchestrates data pipelines and optimizes workflows, turning complex problems into elegant solutions. 
+                        I am a deep-lying playmaker on a tech team. By day, I&apos;m an ML Infra Engineer who orchestrates data pipelines and optimizes workflows, turning complex problems into elegant solutions. 
                         Instead of through-balls, I deliver assists like slashing data retrieval time by 96% and cutting cloud costs by 35%. 
-                        When I'm not architecting systems, you can find me analyzing the tactics of a great soccer match, getting lost in a historical documentary, or diving down a YouTube rabbit hole of social experiments and scientific debates. 
-                        I thrive on understanding the "why" behind the "what," whether it's in a CI/CD pipeline or in human behavior.
+                        When I&apos;m not architecting systems, you can find me analyzing the tactics of a great soccer match, getting lost in a historical documentary, or diving down a YouTube rabbit hole of social experiments and scientific debates. 
+                        I thrive on understanding the &ldquo;why&rdquo; behind the &ldquo;what,&rdquo; whether it&apos;s in a CI/CD pipeline or in human behavior.
                       </p>
                     </div>
 
