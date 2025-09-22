@@ -5,7 +5,7 @@ export const playerData: PlayerData = {
     name: "MADHUR DIXIT",
     position: "Lead AI/ML Infrastructure Engineer",
     nationality: "India",
-    age: 25,
+    age: 23,
     photo: "/madhur-photo.jpg", // Replace with your actual photo
     kitNumber: 13
   },
