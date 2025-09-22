@@ -282,10 +282,10 @@ export default function PlayerReveal({ onRevealComplete }: PlayerRevealProps) {
         {phase === 'card' && (
           <motion.div
             initial={{ scale: 0.1, rotateX: 90, y: -100 }}
-            animate={{ scale: 1, rotateX: 0, y: 0 }}
-            transition={{ duration: 2, ease: "easeOut" }}
-            className="bg-gradient-to-br from-yellow-600 via-yellow-700 to-yellow-800 rounded-2xl p-8 border-4 border-yellow-400 shadow-2xl"
-            animate={{
+            animate={{ 
+              scale: 1, 
+              rotateX: 0, 
+              y: 0,
               boxShadow: [
                 "0 0 30px rgba(255, 215, 0, 0.5)",
                 "0 0 60px rgba(255, 215, 0, 0.8)",
@@ -294,9 +294,14 @@ export default function PlayerReveal({ onRevealComplete }: PlayerRevealProps) {
             }}
             transition={{
               duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
+              ease: "easeOut",
+              boxShadow: {
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }
             }}
+            className="bg-gradient-to-br from-yellow-600 via-yellow-700 to-yellow-800 rounded-2xl p-8 border-4 border-yellow-400 shadow-2xl"
           >
             <div className="text-center space-y-4">
               <motion.div 
