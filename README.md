@@ -1,147 +1,170 @@
-# 🏆 Madhur Dixit - FIFA-Style Portfolio
+# FIFA Player Card Portfolio
 
-A modern, interactive portfolio website inspired by FIFA Ultimate Team player cards, built with Next.js, TypeScript, and Tailwind CSS.
+A modern, interactive portfolio website designed in the style of FIFA Ultimate Team (FUT) player cards. Built with Next.js, TypeScript, Three.js, and Tailwind CSS.
 
-## ✨ Features
+## Features
 
-- **FIFA-Style Player Card Design** - Professional card layout with stats and information
-- **Player Reveal Animation** - Engaging pack-opening style animation
-- **Responsive Design** - Works perfectly on desktop and mobile
-- **Interactive Sections** - Experience, Education, Projects, Skills, Blogs, and Research
-- **Modern Tech Stack** - Next.js 14, TypeScript, Tailwind CSS, Framer Motion
-- **3D Elements** - Smooth animations and transitions
-- **Clickable Links** - Direct access to projects and company websites
+- **FIFA Card Design**: Authentic FIFA Ultimate Team card styling with gradients, borders, and animations
+- **3D Player Model**: Interactive 3D character model using React Three Fiber and Three.js
+- **Responsive Layout**: Works seamlessly on desktop and mobile devices
+- **Interactive Elements**: Hover animations, smooth transitions, and floating elements
+- **Skills Rating System**: FIFA-style skill ratings with color-coded progress bars
+- **Modern Tech Stack**: Next.js 14, TypeScript, Tailwind CSS, Framer Motion
 
-## 🚀 Live Demo
-
-[View Live Portfolio](https://madhur-portfolio.onrender.com) (Deployed on Render)
-
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework**: Next.js 14 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
+- **3D Graphics**: Three.js, React Three Fiber, React Three Drei
 - **Animations**: Framer Motion
 - **Icons**: Lucide React
-- **Deployment**: Render
 
-## 📁 Project Structure
+## Project Structure
 
 ```
-madhur-portfolio/
-├── src/
-│   ├── app/                 # Next.js app directory
-│   ├── components/          # React components
-│   ├── data/               # Data files
-│   └── types/              # TypeScript interfaces
-├── public/                 # Static assets
-├── .github/workflows/      # GitHub Actions
-└── render.yaml            # Render deployment config
+src/
+├── app/
+│   ├── globals.css          # Global styles and FIFA card animations
+│   ├── layout.tsx           # Root layout component
+│   └── page.tsx             # Main page component
+├── components/
+│   ├── CardInfo.tsx         # Personal information display component
+│   ├── Navbar.tsx           # Navigation component
+│   ├── PlayerModel.tsx      # 3D character model component
+│   └── PortfolioCard.tsx    # Main FIFA card container
+├── data/
+│   └── portfolioData.ts     # Portfolio data and dummy content
+└── types/
+    └── portfolio.ts         # TypeScript type definitions
 ```
 
-## 🎮 Sections
+## Getting Started
 
-- **Personal Info** - Contact details and professional summary
-- **Experience** - Work history with clickable company links
-- **Education** - Academic background
-- **Coursework** - Detailed course listings by category
-- **Research** - Academic publications and research
-- **Skills** - Technical skills organized by category
-- **Projects** - Portfolio projects with GitHub links
-- **Blogs** - Technical writing and articles
+1. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-## 🚀 Getting Started
+2. **Run Development Server**
+   ```bash
+   npm run dev
+   ```
 
-### Prerequisites
+3. **Open in Browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-- Node.js 18+ 
-- npm or yarn
+## Customization
 
-### Installation
+### Updating Personal Information
 
-1. Clone the repository:
-```bash
-git clone https://github.com/MadhurDixit13/Madhur-Portfolio.git
-cd Madhur-Portfolio
+Edit `src/data/portfolioData.ts` to update your personal details:
+
+```typescript
+export const portfolioData: PortfolioData = {
+  personalInfo: {
+    name: "YOUR NAME",
+    position: "YOUR POSITION",
+    nationality: "YOUR COUNTRY",
+    age: 25,
+  },
+  skills: [
+    { name: "Skill Name", rating: 95, category: "Technical" },
+    // Add more skills...
+  ],
+  // ... other sections
+};
 ```
 
-2. Install dependencies:
-```bash
-cd madhur-portfolio
-npm install
-```
+### Adding Skills
 
-3. Run the development server:
-```bash
-npm run dev
-```
+Skills are rated on a scale of 1-100 and categorized as:
+- **Technical**: Programming languages, frameworks, tools
+- **Soft Skills**: Communication, leadership, problem-solving
+- **Tools**: Software, platforms, services
+- **Languages**: Programming or spoken languages
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+### Customizing the 3D Model
 
-## 🎨 Customization
-
-### Personal Information
-Update your details in `src/data/playerData.ts`:
-- Personal information
-- Experience and education
-- Projects and skills
-- Contact details
+The 3D model is defined in `src/components/PlayerModel.tsx`. You can:
+- Replace the simple geometric character with a more detailed model
+- Add animations and interactions
+- Customize colors and materials
+- Add accessories or clothing
 
 ### Styling
-Modify colors and themes in:
-- `src/app/globals.css` - Global styles
-- `src/components/FIFAPlayerCard.tsx` - Card styling
-- `src/components/PlayerReveal.tsx` - Animation styling
 
-### Content
-- Add your photo to `public/madhur-photo.jpg`
-- Update project links and descriptions
-- Modify the professional summary
+The FIFA card styling is defined in `src/app/globals.css`. Key classes include:
+- `.fifa-portfolio-card`: Main card container
+- `.skill-bar`: Skill rating progress bars
+- `.model-container`: 3D model wrapper
+- `.floating-badge`: Animated rating badges
 
-## 🚀 Deployment
+## Features Breakdown
 
-### Render (Current)
-The project is configured for automatic deployment on Render:
-- Connected to GitHub repository
-- Auto-deploys on push to main branch
-- Free tier available
+### FIFA Card Design
+- Authentic gradient backgrounds
+- Animated borders and glows
+- Hover effects and transitions
+- Responsive design for all screen sizes
 
-### Other Platforms
-- **Vercel**: `vercel --prod`
-- **Netlify**: Connect GitHub repository
-- **GitHub Pages**: Requires static export
+### 3D Model
+- Interactive rotation with mouse controls
+- Floating animation
+- Hover effects
+- Customizable character appearance
 
-## 📱 Responsive Design
+### Skills System
+- Color-coded ratings (green: 90+, blue: 80+, orange: 70+, red: <70)
+- Animated progress bars
+- Category-based organization
+- Hover tooltips
 
-- **Desktop**: Full FIFA card experience with animations
-- **Tablet**: Optimized layout with adjusted spacing
-- **Mobile**: Single-column layout with touch-friendly interactions
+### Contact Information
+- Clickable contact links
+- Social media integration
+- Location and contact details
+- Smooth hover animations
 
-## 🎯 Performance
+## Performance Optimizations
 
-- **Lighthouse Score**: 95+ across all metrics
-- **Core Web Vitals**: Optimized for speed and user experience
+- **Code Splitting**: Components are lazy-loaded where appropriate
 - **Image Optimization**: Next.js automatic image optimization
-- **Code Splitting**: Automatic code splitting for optimal loading
+- **3D Model Optimization**: Efficient Three.js rendering
+- **CSS Animations**: Hardware-accelerated animations
+- **Responsive Images**: Optimized for different screen sizes
 
-## 🤝 Contributing
+## Browser Support
+
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+## Deployment
+
+The project can be deployed to any platform that supports Next.js:
+
+- **Vercel** (recommended)
+- **Netlify**
+- **AWS Amplify**
+- **Railway**
+
+## License
+
+MIT License - feel free to use this project for your own portfolio!
+
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
 4. Submit a pull request
 
-## 📄 License
+## Support
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Author
-
-**Madhur Dixit**
-- GitHub: [@MadhurDixit13](https://github.com/MadhurDixit13)
-- LinkedIn: [Madhur Dixit](https://linkedin.com/in/madixit)
-- Email: madhurdixit37@gmail.com
+If you encounter any issues or have questions, please open an issue on GitHub.
 
 ---
 
-⭐ Star this repository if you found it helpful!
+**Built with ❤️ using Next.js, TypeScript, and Three.js**
