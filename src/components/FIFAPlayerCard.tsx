@@ -10,7 +10,7 @@ interface FIFAPlayerCardProps {
 }
 
 export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
-  const [activeTab, setActiveTab] = useState<'info' | 'clubs' | 'education' | 'projects'>('info');
+  const [activeTab, setActiveTab] = useState<'info' | 'experience' | 'education' | 'coursework' | 'research' | 'skills' | 'projects' | 'blogs'>('info');
 
 
   return (
@@ -139,7 +139,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                 ].map(({ id, label, icon: Icon }) => (
                   <button
                     key={id}
-                    onClick={() => setActiveTab(id as 'info' | 'clubs' | 'education' | 'projects')}
+                    onClick={() => setActiveTab(id as 'info' | 'experience' | 'education' | 'coursework' | 'research' | 'skills' | 'projects' | 'blogs')}
                             className={`nav-tab flex-shrink-0 flex items-center justify-center gap-1 py-2 px-2 sm:px-3 rounded-md transition-all text-xs whitespace-nowrap ${
                               activeTab === id
                                 ? 'bg-amber-500 text-black font-bold border-2 border-amber-300 shadow-lg'
