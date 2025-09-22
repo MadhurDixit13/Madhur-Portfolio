@@ -1,0 +1,1205 @@
+@import "tailwindcss";
+@import "@fontsource/geist-sans"; /* regular weight */
+@import "@fontsource/geist-mono"; /* optional, for code */
+
+@layer base {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ffffff;
+
+    /* FIFA/Soccer Theme Colors */
+    --primary-dark: #0a0a0a;
+    --secondary-dark: #1a1a1a;
+    --accent-lime: #00ff41;
+    --accent-blue: #00d4ff;
+    --accent-orange: #ff6b35;
+    
+    /* Text Colors */
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --text-muted: #666666;
+    
+    /* Card Colors */
+    --card-bg: #1a1a1a;
+    --card-border: #333333;
+    --card-hover: #2a2a2a;
+    
+    /* Stats Colors */
+    --stat-excellent: #00ff41;
+    --stat-good: #00d4ff;
+    --stat-average: #ff6b35;
+    --stat-poor: #666666;
+
+    --navbar-background: var(--secondary-dark);
+
+    --font-sans: 'Geist Sans', sans-serif;
+    --font-mono: 'Geist Mono', monospace;
+    --font-condensed: 'Arial Narrow', Arial, sans-serif;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --background: #f8f9fa;
+      --foreground: #212529;
+      --primary-dark: #f8f9fa;
+      --secondary-dark: #e9ecef;
+      --card-bg: #ffffff;
+      --card-border: #dee2e6;
+      --card-hover: #f8f9fa;
+      --text-primary: #212529;
+      --text-secondary: #495057;
+      --text-muted: #6c757d;
+    }
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    background-image: 
+      radial-gradient(circle at 25% 25%, rgba(0, 255, 65, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(0, 212, 255, 0.05) 0%, transparent 50%);
+  }
+
+  /* FIFA Ultimate Team Card Styles */
+  .fifa-ut-card {
+    width: 450px;
+    height: 650px;
+    perspective: 1000px;
+    margin: 0 auto;
+    cursor: pointer;
+    position: relative;
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
+    isolation: isolate;
+  }
+
+  /* Reveal Animation */
+  @keyframes cardReveal {
+    0% {
+      opacity: 0;
+      transform: scale(0.5) rotateY(180deg);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.1) rotateY(90deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotateY(0deg);
+    }
+  }
+
+  @keyframes glowPulse {
+    0%, 100% {
+      box-shadow: 
+        0 0 30px rgba(255, 215, 0, 0.6),
+        0 0 60px rgba(255, 215, 0, 0.4),
+        0 0 90px rgba(255, 215, 0, 0.2);
+    }
+    50% {
+      box-shadow: 
+        0 0 40px rgba(255, 215, 0, 0.8),
+        0 0 80px rgba(255, 215, 0, 0.6),
+        0 0 120px rgba(255, 215, 0, 0.4);
+    }
+  }
+
+  @keyframes flameFlicker {
+    0%, 100% { opacity: 0.8; transform: scaleY(1); }
+    25% { opacity: 1; transform: scaleY(1.1); }
+    50% { opacity: 0.9; transform: scaleY(0.9); }
+    75% { opacity: 1; transform: scaleY(1.05); }
+  }
+
+  .fifa-ut-card.revealed {
+    animation: cardReveal 2s ease-out forwards;
+  }
+
+  .fifa-ut-card.revealed .card-front {
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+
+  /* Prevent layout shifts on hover */
+  .fifa-ut-card {
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+
+  /* FIFA Pack Reveal Animations */
+  @keyframes packPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 1; }
+  }
+
+  @keyframes flareExplosion {
+    0% { 
+      opacity: 0; 
+      transform: scale(0.1); 
+      filter: brightness(0);
+    }
+    50% { 
+      opacity: 1; 
+      transform: scale(2); 
+      filter: brightness(3);
+    }
+    100% { 
+      opacity: 0; 
+      transform: scale(3); 
+      filter: brightness(1);
+    }
+  }
+
+  @keyframes flagAppear {
+    0% { 
+      opacity: 0; 
+      transform: scale(0.5) rotateY(180deg); 
+    }
+    100% { 
+      opacity: 1; 
+      transform: scale(1) rotateY(0deg); 
+    }
+  }
+
+  @keyframes letterGlitch {
+    0% { opacity: 0; transform: translateX(-20px) skewX(20deg); }
+    50% { opacity: 0.5; transform: translateX(0px) skewX(-5deg); }
+    100% { opacity: 1; transform: translateX(0px) skewX(0deg); }
+  }
+
+  @keyframes logoGlow {
+    0% { 
+      opacity: 0; 
+      transform: scale(0.8); 
+      filter: brightness(0) drop-shadow(0 0 0px rgba(255, 215, 0, 0));
+    }
+    50% { 
+      opacity: 1; 
+      transform: scale(1.2); 
+      filter: brightness(2) drop-shadow(0 0 20px rgba(255, 215, 0, 1));
+    }
+    100% { 
+      opacity: 1; 
+      transform: scale(1); 
+      filter: brightness(1) drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+    }
+  }
+
+  @keyframes slideInFromRight {
+    0% { 
+      opacity: 0; 
+      transform: translateX(100vw) scale(0.8); 
+    }
+    100% { 
+      opacity: 1; 
+      transform: translateX(0) scale(1); 
+    }
+  }
+
+  @keyframes slideToLeft {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  @keyframes cardSlam {
+    0% { 
+      opacity: 0; 
+      transform: scale(0.1) translateY(-100vh) rotateX(90deg); 
+    }
+    70% { 
+      opacity: 1; 
+      transform: scale(1.1) translateY(0) rotateX(0deg); 
+    }
+    100% { 
+      opacity: 1; 
+      transform: scale(1) translateY(0) rotateX(0deg) translateZ(0); 
+    }
+  }
+
+  @keyframes particleBurst {
+    0% { 
+      opacity: 0; 
+      transform: scale(0); 
+    }
+    50% { 
+      opacity: 1; 
+      transform: scale(1); 
+    }
+    100% { 
+      opacity: 0; 
+      transform: scale(2) translateY(-100px); 
+    }
+  }
+
+  @keyframes ambientGlow {
+    0%, 100% { filter: brightness(1) drop-shadow(0 0 5px rgba(255, 215, 0, 0.3)); }
+    50% { filter: brightness(1.1) drop-shadow(0 0 15px rgba(255, 215, 0, 0.6)); }
+  }
+
+  /* Reveal Phase Classes */
+  .pack-container {
+    animation: packPulse 2s ease-in-out infinite;
+  }
+
+  .flare-effect {
+    animation: flareExplosion 1s ease-out;
+  }
+
+  .flag-reveal {
+    animation: flagAppear 1.5s ease-out;
+  }
+
+  .letter-reveal {
+    animation: letterGlitch 0.5s ease-out;
+  }
+
+  .logo-reveal {
+    animation: logoGlow 2s ease-out;
+  }
+
+  .walkout-slide {
+    animation: slideInFromRight 1.5s ease-out;
+  }
+
+  .slide-left {
+    animation: slideToLeft 1s ease-out forwards;
+  }
+
+  .card-slam {
+    animation: cardSlam 1s ease-out;
+  }
+
+  .particle-burst {
+    animation: particleBurst 1s ease-out;
+  }
+
+  .ambient-glow {
+    animation: ambientGlow 3s ease-in-out infinite;
+  }
+
+  /* Accessibility: Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .pack-container,
+    .flare-effect,
+    .flag-reveal,
+    .letter-reveal,
+    .logo-reveal,
+    .walkout-slide,
+    .slide-left,
+    .card-slam,
+    .particle-burst,
+    .ambient-glow,
+    .glowPulse,
+    .flameFlicker,
+    .shimmer,
+    .pulse-glow,
+    .slideInUp,
+    .fadeInScale {
+      animation: none !important;
+    }
+    
+    .fifa-ut-card:hover .card-inner {
+      transform: none !important;
+    }
+    
+    .fifa-ut-card {
+      transition: none !important;
+    }
+  }
+
+  .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+  }
+
+  .fifa-ut-card:hover .card-inner {
+    transform: rotateY(180deg);
+  }
+
+  /* Prevent card movement on hover */
+  .fifa-ut-card:hover {
+    transform: translateZ(0) !important;
+  }
+
+  /* Lock card position completely */
+  .fifa-ut-card {
+    transform: translateZ(0) !important;
+    position: relative !important;
+    margin: 0 auto !important;
+  }
+
+  .card-inner {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .card-front {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 25%, #1a1a1a 50%, #2d2d2d 75%, #1a1a1a 100%);
+    border: 3px solid #ffd700;
+    box-shadow: 
+      0 0 30px rgba(255, 215, 0, 0.6),
+      0 0 60px rgba(255, 215, 0, 0.4),
+      inset 0 0 20px rgba(255, 215, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-front::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(255, 100, 0, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255, 200, 0, 0.2) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Flame Effects */
+  .flame-effect {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(to top, 
+      rgba(255, 100, 0, 0.8) 0%, 
+      rgba(255, 150, 0, 0.6) 30%, 
+      rgba(255, 200, 0, 0.4) 60%, 
+      transparent 100%);
+    border-radius: 50% 50% 0 0;
+    animation: flameFlicker 1.5s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+  }
+
+  .flame-effect::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20%;
+    width: 30%;
+    height: 80%;
+    background: linear-gradient(to top, 
+      rgba(255, 80, 0, 0.9) 0%, 
+      rgba(255, 120, 0, 0.7) 50%, 
+      transparent 100%);
+    border-radius: 50% 50% 0 0;
+    animation: flameFlicker 1.2s ease-in-out infinite alternate;
+  }
+
+  .flame-effect::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 20%;
+    width: 30%;
+    height: 80%;
+    background: linear-gradient(to top, 
+      rgba(255, 80, 0, 0.9) 0%, 
+      rgba(255, 120, 0, 0.7) 50%, 
+      transparent 100%);
+    border-radius: 50% 50% 0 0;
+    animation: flameFlicker 1.8s ease-in-out infinite alternate;
+  }
+
+  .card-back {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%);
+    border: 3px solid var(--accent-lime);
+    transform: rotateY(180deg);
+    box-shadow: 
+      0 0 20px rgba(0, 255, 65, 0.3),
+      inset 0 0 20px rgba(0, 255, 65, 0.1);
+  }
+
+  /* FIFA Stats */
+  .fifa-stat {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    margin: 4px 0;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .fifa-stat:hover {
+    background: rgba(0, 255, 65, 0.2);
+    transform: translateX(5px);
+  }
+
+  .stat-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    border: 1px solid var(--accent-lime);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .fifa-stat:hover .stat-tooltip {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .stat-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--card-bg);
+  }
+
+  /* Player Traits */
+  .player-trait {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    margin: 6px 0;
+    background: linear-gradient(135deg, rgba(0, 255, 65, 0.1), rgba(0, 212, 255, 0.1));
+    border: 1px solid var(--accent-lime);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .player-trait:hover {
+    background: linear-gradient(135deg, rgba(0, 255, 65, 0.2), rgba(0, 212, 255, 0.2));
+    transform: scale(1.02);
+  }
+
+  .trait-star {
+    color: #ffd700;
+    font-size: 16px;
+  }
+
+  /* Special Project Cards */
+  .rulebreakers-card {
+    background: linear-gradient(135deg, #8b00ff 0%, #a855f7 50%, #8b00ff 100%);
+    border: 3px solid #8b00ff;
+    box-shadow: 0 0 25px rgba(139, 0, 255, 0.5);
+  }
+
+  .team-of-season-card {
+    background: linear-gradient(135deg, #00d4ff 0%, #0ea5e9 50%, #00d4ff 100%);
+    border: 3px solid #00d4ff;
+    box-shadow: 0 0 25px rgba(0, 212, 255, 0.5);
+  }
+
+  /* FIFA/Soccer Theme Styles */
+  .player-card {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%);
+    border: 3px solid var(--accent-lime);
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+      0 0 20px rgba(0, 255, 65, 0.3),
+      inset 0 0 20px rgba(0, 255, 65, 0.1);
+  }
+
+  .player-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(0, 255, 65, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .fifa-player-photo {
+    width: 200px;
+    height: 250px;
+    border-radius: 10px;
+    border: 3px solid var(--accent-lime);
+    object-fit: cover;
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+    transition: all 0.3s ease;
+  }
+
+  .fifa-player-photo:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.6);
+  }
+
+  .fifa-player-info {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    border: 2px solid var(--accent-blue);
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+  }
+
+  .fifa-player-info::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-lime));
+  }
+
+  .fifa-stats-card {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 2px solid var(--accent-orange);
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+  }
+
+  .fifa-stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-orange), var(--accent-lime));
+  }
+
+  .stat-bar {
+    background: var(--card-border);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .stat-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 1.5s ease-out;
+    position: relative;
+  }
+
+  .stat-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  .stat-excellent { background: linear-gradient(90deg, var(--stat-excellent), #00cc33); }
+  .stat-good { background: linear-gradient(90deg, var(--stat-good), #0099cc); }
+  .stat-average { background: linear-gradient(90deg, var(--stat-average), #cc4400); }
+  .stat-poor { background: linear-gradient(90deg, var(--stat-poor), #444444); }
+
+  /* Hexagonal patterns */
+  .hex-pattern {
+    background-image: 
+      radial-gradient(circle at 50% 50%, var(--accent-lime) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.1;
+  }
+
+  /* Animations */
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { 
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+    }
+    50% { 
+      box-shadow: 0 0 30px rgba(0, 255, 65, 0.6);
+    }
+  }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Interactive Elements */
+  .interactive-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .interactive-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-lime);
+    box-shadow: 0 10px 30px rgba(0, 255, 65, 0.2);
+  }
+
+  .club-badge {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid var(--card-border);
+    background: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: all 0.3s ease;
+  }
+
+  .club-badge:hover {
+    border-color: var(--accent-lime);
+    transform: scale(1.1);
+  }
+
+  /* Radar Chart Styles */
+  .radar-chart {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 20px;
+    position: relative;
+  }
+
+  .radar-chart::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: conic-gradient(from 0deg, var(--accent-lime), var(--accent-blue), var(--accent-orange), var(--accent-lime));
+    border-radius: 15px;
+    opacity: 0.1;
+    z-index: 0;
+  }
+
+  .radar-chart > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Highlight Reel */
+  .highlight-thumbnail {
+    aspect-ratio: 16/9;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    transition: all 0.3s ease;
+  }
+
+  .highlight-thumbnail:hover {
+    border-color: var(--accent-lime);
+    transform: scale(1.05);
+  }
+
+  .highlight-thumbnail::before {
+    content: '▶';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 48px;
+    color: var(--accent-lime);
+    opacity: 0.8;
+    transition: all 0.3s ease;
+  }
+
+  .highlight-thumbnail:hover::before {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+
+  /* Typography */
+  .fifa-title {
+    font-family: var(--font-condensed);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: linear-gradient(45deg, var(--accent-lime), var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-family: var(--font-condensed);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 12px;
+  }
+
+  /* Navigation */
+  .nav-link {
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent-lime);
+    transition: width 0.3s ease;
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
+  }
+
+  /* Animations for page load */
+  .animate-slide-up {
+    animation: slideInUp 0.8s ease-out forwards;
+  }
+
+  .animate-fade-scale {
+    animation: fadeInScale 0.6s ease-out forwards;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* FIFA Player Card Styles - Office Theme */
+  .fifa-player-card {
+    background: linear-gradient(135deg, #374151 0%, #4b5563 25%, #6b7280 50%, #9ca3af 75%, #d1d5db 100%);
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+      0 0 30px rgba(107, 114, 128, 0.3),
+      0 0 60px rgba(75, 85, 99, 0.2),
+      inset 0 0 30px rgba(255, 255, 255, 0.05);
+  }
+
+  .fifa-portfolio-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    background: linear-gradient(45deg, #ffd700, #ff6b35, #e94560, #533483, #0f3460);
+    border-radius: inherit;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+  }
+
+  .skill-bar {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .skill-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 1s ease-out;
+    position: relative;
+  }
+
+  .skill-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  .skill-excellent { background: linear-gradient(90deg, #00ff41, #00cc33); }
+  .skill-good { background: linear-gradient(90deg, #00d4ff, #0099cc); }
+  .skill-average { background: linear-gradient(90deg, #ff6b35, #cc4400); }
+  .skill-poor { background: linear-gradient(90deg, #666666, #444444); }
+
+  /* 3D Model Container */
+  .model-container {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .model-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    animation: shimmer 3s infinite;
+  }
+
+  /* Floating Elements */
+  .floating-badge {
+    position: absolute;
+    background: linear-gradient(45deg, #ffd700, #ff6b35);
+    color: #000;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .floating-status {
+    position: absolute;
+    background: linear-gradient(45deg, #00ff41, #00cc33);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 12px;
+    box-shadow: 0 4px 15px rgba(0, 255, 65, 0.4);
+    animation: float 2.5s ease-in-out infinite;
+  }
+
+  /* FIFA Card Animations - Office Theme */
+  @keyframes cardGlow {
+    0%, 100% {
+      box-shadow: 
+        0 0 20px rgba(156, 163, 175, 0.4),
+        0 0 40px rgba(107, 114, 128, 0.3),
+        0 0 60px rgba(75, 85, 99, 0.2);
+    }
+    50% {
+      box-shadow: 
+        0 0 30px rgba(156, 163, 175, 0.6),
+        0 0 60px rgba(107, 114, 128, 0.4),
+        0 0 90px rgba(75, 85, 99, 0.3);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .fifa-card-glow {
+    animation: cardGlow 4s ease-in-out infinite;
+  }
+
+  .floating-element {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Player Photo Styles */
+  .player-photo {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .player-photo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    animation: shimmer 3s infinite;
+  }
+
+  /* Club Badge Styles - Office Theme */
+  .club-badge {
+    background: linear-gradient(45deg, #6b7280, #9ca3af);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+    box-shadow: 0 4px 15px rgba(107, 114, 128, 0.4);
+    animation: float 3s ease-in-out infinite;
+    border: 1px solid #4b5563;
+  }
+
+  /* Stats Bar Styles */
+  .stats-bar {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .stats-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 1s ease-out;
+    position: relative;
+  }
+
+  .stats-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+  }
+
+  .stats-excellent { background: linear-gradient(90deg, #00ff41, #00cc33); }
+  .stats-good { background: linear-gradient(90deg, #00d4ff, #0099cc); }
+  .stats-average { background: linear-gradient(90deg, #ff6b35, #cc4400); }
+  .stats-poor { background: linear-gradient(90deg, #666666, #444444); }
+
+  /* Tab Styles */
+  .fifa-tab {
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .fifa-tab.active {
+    background: linear-gradient(45deg, #6b7280, #9ca3af);
+    color: #fff;
+    font-weight: bold;
+    border: 1px solid #4b5563;
+  }
+
+  .fifa-tab:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+
+  /* Project Card Styles */
+  .project-card {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    animation: shimmer 4s infinite;
+  }
+
+  /* Player Reveal Animations */
+  @keyframes packPulse {
+    0%, 100% { 
+      transform: scale(1) rotateY(0deg);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+    50% { 
+      transform: scale(1.05) rotateY(5deg);
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
+    }
+  }
+
+  @keyframes flareExplosion {
+    0% { 
+      opacity: 0; 
+      transform: scale(0.1); 
+      filter: brightness(0);
+    }
+    50% { 
+      opacity: 1; 
+      transform: scale(2); 
+      filter: brightness(3);
+    }
+    100% { 
+      opacity: 0; 
+      transform: scale(3); 
+      filter: brightness(1);
+    }
+  }
+
+  @keyframes cardSlam {
+    0% { 
+      opacity: 0; 
+      transform: scale(0.1) translateY(-100vh) rotateX(90deg); 
+    }
+    70% { 
+      opacity: 1; 
+      transform: scale(1.1) translateY(0) rotateX(0deg); 
+    }
+    100% { 
+      opacity: 1; 
+      transform: scale(1) translateY(0) rotateX(0deg); 
+    }
+  }
+
+  @keyframes walkoutSlide {
+    0% { 
+      transform: translateX(100vw) scale(0.8); 
+      opacity: 0;
+    }
+    100% { 
+      transform: translateX(0) scale(1); 
+      opacity: 1;
+    }
+  }
+
+  .pack-pulse {
+    animation: packPulse 2s ease-in-out infinite;
+  }
+
+  .flare-explosion {
+    animation: flareExplosion 1s ease-out;
+  }
+
+  .card-slam {
+    animation: cardSlam 1s ease-out;
+  }
+
+  .walkout-slide {
+    animation: walkoutSlide 1.5s ease-out;
+  }
+
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .fifa-player-card {
+    margin: 0 1rem;
+  }
+}
+
+/* Line clamp utility for text truncation */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Projects and Education responsive fixes */
+@media (max-width: 640px) {
+  .projects-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+  
+  .project-card {
+    min-width: 0;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 768px) {
+  .projects-grid,
+  .education-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-tabs {
+    flex-direction: column !important;
+    gap: 0.25rem !important;
+  }
+  
+  .nav-tab {
+    flex: 1 !important;
+    min-width: 100% !important;
+  }
+}
+
+/* Navigation tabs horizontal scroll */
+.nav-tabs {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(245, 158, 11, 0.3) transparent;
+}
+
+.nav-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.nav-tabs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nav-tabs::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.3);
+  border-radius: 2px;
+}
+
+.nav-tabs::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.5);
+}
+
+  @media (max-width: 768px) {
+    .fifa-player-card {
+      margin: 0 0.5rem;
+      border-radius: 15px;
+    }
+    
+    .club-badge {
+      font-size: 12px;
+      padding: 6px 12px;
+    }
+  }
+}
