@@ -20,7 +20,7 @@ function TechLogo({ slug, alt, size = 28 }: { slug: string; alt: string; size?: 
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type ConceptId = 'kafka' | 'spark' | 'docker' | 'kubernetes' | 'timescaledb' | 'langchain' | 'redis' | 'airflow' | 'fastapi';
+type ConceptId = 'kafka' | 'spark' | 'docker' | 'kubernetes' | 'timescaledb' | 'langchain' | 'redis' | 'airflow' | 'fastapi' | 'prometheus' | 'influxdb' | 'celery';
 
 interface Concept {
   id: ConceptId;
@@ -149,6 +149,42 @@ const CONCEPTS: Concept[] = [
     matchLog: [
       { label: 'Liquid Rocketry Lab — Flask to FastAPI migration', url: 'https://liquidrocketry.com/' },
       { label: 'AllyIn.ai — GPU metrics API', url: 'https://www.linkedin.com/company/allyin-ai/posts/?feedView=all' },
+    ],
+  },
+  {
+    id: 'prometheus',
+    name: 'PROMETHEUS',
+    tagline: 'The Scout Report',
+    type: 'METRICS & ALERTING',
+    difficulty: 70, impact: 92, reuse: 90, rating: 91,
+    iconSlug: 'prometheus',
+    summary: 'Prometheus is the scout — it scrapes every node on a fixed interval, stores time-series metrics, and fires alerts the moment a stat drops below threshold. Used with DCGM at AllyIn.ai to track GPU utilisation, SM occupancy, and memory bandwidth in real time.',
+    matchLog: [
+      { label: 'AllyIn.ai — GPU telemetry platform (DCGM + Prometheus)', url: 'https://www.linkedin.com/company/allyin-ai/posts/?feedView=all' },
+    ],
+  },
+  {
+    id: 'influxdb',
+    name: 'INFLUXDB',
+    tagline: 'The Time-Keeper',
+    type: 'TIME-SERIES DB',
+    difficulty: 72, impact: 88, reuse: 84, rating: 85,
+    iconSlug: 'influxdb',
+    summary: 'InfluxDB is the time-keeper, purpose-built for high-frequency sensor data. At Liquid Rocketry Lab, migrating queries from legacy InfluxQL to Flux cut retrieval time by 96% (50s → 2s) by leveraging push-down filters and multi-measurement joins.',
+    matchLog: [
+      { label: 'Liquid Rocketry Lab — 96% query speedup (InfluxQL → Flux)', url: 'https://liquidrocketry.com/' },
+    ],
+  },
+  {
+    id: 'celery',
+    name: 'CELERY',
+    tagline: 'The Rotation Squad',
+    type: 'TASK QUEUE',
+    difficulty: 68, impact: 87, reuse: 89, rating: 84,
+    iconSlug: 'celery',
+    summary: 'Celery is the rotation squad — background workers that pick up tasks from a broker (Redis) and process them without blocking the main thread. Used at Runara.ai to queue LLM inference jobs so the API stays responsive while heavy GPU work runs asynchronously.',
+    matchLog: [
+      { label: 'Runara.ai — LLM inference job queue', url: '' },
     ],
   },
 ];
@@ -961,6 +997,251 @@ function FastAPIDiagram() {
   );
 }
 
+// ─── Prometheus animation ─────────────────────────────────────────────────────
+function PrometheusDiagram() {
+  const [metrics, setMetrics] = useState<{ name: string; value: number; unit: string; alert: boolean }[]>([
+    { name: 'GPU SM Occupancy', value: 87, unit: '%', alert: false },
+    { name: 'Memory Bandwidth', value: 72, unit: '%', alert: false },
+    { name: 'GPU Temperature', value: 68, unit: '°C', alert: false },
+    { name: 'VRAM Usage', value: 91, unit: '%', alert: true },
+  ]);
+  const [scraping, setScraping] = useState(false);
+  const [lastScrape, setLastScrape] = useState<string | null>(null);
+
+  const scrape = () => {
+    if (scraping) return;
+    setScraping(true);
+    setTimeout(() => {
+      setMetrics(prev => prev.map(m => {
+        const delta = (Math.random() - 0.48) * 8;
+        const newVal = Math.min(99, Math.max(10, Math.round(m.value + delta)));
+        return { ...m, value: newVal, alert: m.name === 'VRAM Usage' ? newVal > 88 : newVal > 95 };
+      }));
+      setLastScrape(new Date().toLocaleTimeString());
+      setScraping(false);
+    }, 600);
+  };
+
+  useEffect(() => {
+    const t = setInterval(scrape, 3000);
+    return () => clearInterval(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-xl border border-white/8 bg-black/30 p-3">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-1.5">
+            <TechLogo slug="prometheus" alt="Prometheus" size={14} />
+            <span className="text-[9px] font-black text-orange-400" style={{ fontFamily: 'var(--font-anton)' }}>DCGM EXPORTER</span>
+          </div>
+          {lastScrape && <span className="text-[8px] text-white/30">scraped {lastScrape}</span>}
+        </div>
+        <div className="space-y-2">
+          {metrics.map(m => (
+            <div key={m.name} className="flex items-center gap-2">
+              <span className="text-[9px] text-white/50 w-36 shrink-0">{m.name}</span>
+              <div className="flex-1 h-2 bg-white/8 rounded-full overflow-hidden">
+                <motion.div className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${m.value}%`,
+                    background: m.alert ? 'linear-gradient(90deg,#ef4444,#f87171)' : m.value > 80 ? 'linear-gradient(90deg,#f59e0b,#fbbf24)' : 'linear-gradient(90deg,#34d399,#6ee7b7)',
+                  }} />
+              </div>
+              <div className="flex items-center gap-1 w-14 shrink-0 justify-end">
+                <span className="text-[9px] font-black" style={{ fontFamily: 'var(--font-anton)', color: m.alert ? '#ef4444' : '#fbbf24' }}>
+                  {m.value}{m.unit}
+                </span>
+                {m.alert && <motion.span animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 0.8, repeat: Infinity }}
+                  className="text-[8px] text-red-400">⚠</motion.span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <button onClick={scrape} disabled={scraping}
+          className="flex items-center gap-1.5 bg-orange-500/15 hover:bg-orange-500/25 disabled:opacity-40 text-orange-300 text-xs font-black px-3 py-1.5 rounded-lg border border-orange-500/25 transition-colors"
+          style={{ fontFamily: 'var(--font-anton)' }}>
+          <ChevronRight className="w-3 h-3" /> {scraping ? 'SCRAPING...' : 'SCRAPE NOW'}
+        </button>
+        <span className="text-amber-400/50 text-xs">auto-scrapes every 3s</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── InfluxDB animation ───────────────────────────────────────────────────────
+const INFLUX_QUERIES = [
+  { label: 'InfluxQL (legacy)', lang: 'legacy', query: 'SELECT mean("value") FROM "sensors"\nGROUP BY time(1m)\nWHERE time > now() - 1h', duration: 50000, color: '#ef4444' },
+  { label: 'Flux (optimised)', lang: 'flux', query: 'from(bucket: "sensors")\n  |> range(start: -1h)\n  |> filter(fn: r => r._field == "value")\n  |> aggregateWindow(every: 1m, fn: mean)', duration: 2000, color: '#34d399' },
+];
+
+function InfluxDBDiagram() {
+  const [running, setRunning] = useState<number | null>(null);
+  const [elapsed, setElapsed] = useState<Record<number, number>>({});
+  const [done, setDone] = useState<Record<number, boolean>>({});
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const runQuery = (idx: number) => {
+    if (running !== null) return;
+    setRunning(idx);
+    setDone(prev => ({ ...prev, [idx]: false }));
+    setElapsed(prev => ({ ...prev, [idx]: 0 }));
+
+    const target = INFLUX_QUERIES[idx].duration;
+    const step = 80;
+    let acc = 0;
+    timerRef.current = setInterval(() => {
+      acc += step;
+      setElapsed(prev => ({ ...prev, [idx]: acc }));
+      if (acc >= target) {
+        clearInterval(timerRef.current!);
+        setElapsed(prev => ({ ...prev, [idx]: target }));
+        setDone(prev => ({ ...prev, [idx]: true }));
+        setRunning(null);
+      }
+    }, step);
+  };
+
+  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
+
+  return (
+    <div className="space-y-3">
+      {INFLUX_QUERIES.map((q, idx) => (
+        <div key={idx} className="rounded-xl border border-white/8 bg-black/30 p-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <TechLogo slug="influxdb" alt="InfluxDB" size={13} />
+              <span className="text-[9px] font-black" style={{ fontFamily: 'var(--font-anton)', color: q.color }}>{q.label}</span>
+            </div>
+            {done[idx] && (
+              <span className="text-[9px] font-black" style={{ fontFamily: 'var(--font-anton)', color: q.color }}>
+                {(q.duration / 1000).toFixed(1)}s
+              </span>
+            )}
+            {running === idx && (
+              <span className="text-[9px] text-white/40">{(elapsed[idx] / 1000).toFixed(1)}s...</span>
+            )}
+          </div>
+          <div className="bg-black/40 rounded px-2 py-1.5 mb-2 font-mono text-[8px] text-white/40 whitespace-pre leading-relaxed border border-white/5">
+            {q.query}
+          </div>
+          {(running === idx || done[idx]) && (
+            <div className="h-1.5 bg-white/8 rounded-full overflow-hidden">
+              <motion.div className="h-full rounded-full" style={{ background: q.color }}
+                animate={{ width: done[idx] ? '100%' : `${Math.min(((elapsed[idx] ?? 0) / q.duration) * 100, 99)}%` }}
+                transition={{ duration: 0.08 }} />
+            </div>
+          )}
+          <button onClick={() => runQuery(idx)} disabled={running !== null}
+            className="mt-2 flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded border transition-colors disabled:opacity-40"
+            style={{ fontFamily: 'var(--font-anton)', color: q.color, borderColor: `${q.color}40`, background: `${q.color}10` }}>
+            <ChevronRight className="w-3 h-3" /> {running === idx ? 'RUNNING...' : done[idx] ? 'RUN AGAIN' : 'RUN QUERY'}
+          </button>
+        </div>
+      ))}
+      {done[0] && done[1] && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          className="text-center text-[9px] font-black text-emerald-400 py-1" style={{ fontFamily: 'var(--font-anton)' }}>
+          FLUX IS 25x FASTER — same data, smarter query
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
+// ─── Celery animation ─────────────────────────────────────────────────────────
+interface CeleryJob { id: number; name: string; worker: number; status: 'queued' | 'running' | 'done'; progress: number }
+
+function CeleryDiagram() {
+  const [jobs, setJobs] = useState<CeleryJob[]>([]);
+  const [totalDone, setTotalDone] = useState(0);
+  const nextId = useRef(1);
+
+  const JOB_TYPES = ['infer:llama-3', 'infer:mistral', 'embed:batch', 'score:toxicity'];
+
+  const enqueue = () => {
+    const name = JOB_TYPES[Math.floor(Math.random() * JOB_TYPES.length)];
+    const id = nextId.current++;
+    const worker = Math.floor(Math.random() * 3);
+    setJobs(prev => [...prev, { id, name, worker, status: 'queued', progress: 0 }]);
+
+    setTimeout(() => {
+      setJobs(prev => prev.map(j => j.id === id ? { ...j, status: 'running' } : j));
+      const duration = 1800 + Math.random() * 1200;
+      const step = 60;
+      let p = 0;
+      const t = setInterval(() => {
+        p += (step / duration) * 100;
+        setJobs(prev => prev.map(j => j.id === id ? { ...j, progress: Math.min(p, 100) } : j));
+        if (p >= 100) {
+          clearInterval(t);
+          setJobs(prev => prev.map(j => j.id === id ? { ...j, status: 'done', progress: 100 } : j));
+          setTotalDone(d => d + 1);
+          setTimeout(() => setJobs(prev => prev.filter(j => j.id !== id)), 1000);
+        }
+      }, step);
+    }, 300 + Math.random() * 400);
+  };
+
+  const workerColors = ['#60a5fa', '#a78bfa', '#34d399'];
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-xl border border-white/8 bg-black/30 p-3">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-1.5">
+            <TechLogo slug="celery" alt="Celery" size={14} />
+            <span className="text-[9px] font-black text-emerald-400" style={{ fontFamily: 'var(--font-anton)' }}>3 WORKERS · REDIS BROKER</span>
+          </div>
+          <span className="text-[8px] text-white/30">{totalDone} completed</span>
+        </div>
+        {/* Workers */}
+        <div className="grid grid-cols-3 gap-1.5 mb-2">
+          {[0, 1, 2].map(w => {
+            const workerJobs = jobs.filter(j => j.worker === w);
+            return (
+              <div key={w} className="rounded border border-white/8 p-1.5 bg-white/[0.02]">
+                <div className="text-[7px] font-black mb-1.5" style={{ fontFamily: 'var(--font-anton)', color: workerColors[w] }}>
+                  WORKER-{w + 1}
+                </div>
+                <AnimatePresence>
+                  {workerJobs.map(j => (
+                    <motion.div key={j.id} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                      className="mb-1">
+                      <div className="text-[7px] text-white/40 truncate mb-0.5">{j.name}</div>
+                      <div className="h-1 bg-white/8 rounded-full overflow-hidden">
+                        <motion.div className="h-full rounded-full" style={{ background: workerColors[w], width: `${j.progress}%` }} />
+                      </div>
+                    </motion.div>
+                  ))}
+                  {workerJobs.length === 0 && (
+                    <div className="text-[7px] text-white/20">idle</div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+        {/* Queue */}
+        <div className="text-[8px] text-white/30 text-center">
+          {jobs.filter(j => j.status === 'queued').length} jobs queued · {jobs.filter(j => j.status === 'running').length} running
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <button onClick={enqueue}
+          className="flex items-center gap-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 text-xs font-black px-3 py-1.5 rounded-lg border border-emerald-500/25 transition-colors"
+          style={{ fontFamily: 'var(--font-anton)' }}>
+          <ChevronRight className="w-3 h-3" /> QUEUE JOB
+        </button>
+        <span className="text-amber-400/50 text-xs">API stays unblocked</span>
+      </div>
+    </div>
+  );
+}
+
 // ─── Stat pill ────────────────────────────────────────────────────────────────
 function ConceptStat({ label, value }: { label: string; value: number }) {
   return (
@@ -1010,6 +1291,9 @@ function ConceptDiagram({ id }: { id: ConceptId }) {
     case 'redis':       return <RedisDiagram />;
     case 'airflow':     return <AirflowDiagram />;
     case 'fastapi':     return <FastAPIDiagram />;
+    case 'prometheus':  return <PrometheusDiagram />;
+    case 'influxdb':    return <InfluxDBDiagram />;
+    case 'celery':      return <CeleryDiagram />;
   }
 }
 
@@ -1065,7 +1349,7 @@ export default function TacticalBoard() {
           TACTICAL PLAYBOOK
         </div>
         <p className="text-amber-100/55 text-xs" style={{ fontFamily: 'var(--font-rajdhani)' }}>
-          Nine technologies I&apos;ve run in production, broken down like match tactics. Pick a card and interact with the live demo.
+          Twelve technologies I&apos;ve run in production, broken down like match tactics. Pick a card and interact with the live demo.
         </p>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">

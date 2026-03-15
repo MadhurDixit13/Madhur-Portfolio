@@ -103,6 +103,7 @@ export const playerData: PlayerData = {
       gpa: "3.86/4.00",
       location: "Raleigh, NC",
       logo: "🎓",
+      logoImage: "/ncsu.jpg",
       initials: "NC STATE"
     },
     {
@@ -112,6 +113,7 @@ export const playerData: PlayerData = {
       gpa: "3.7/4.00",
       location: "Mumbai, India",
       logo: "🏛️",
+      logoImage: "/mumbai.jpg",
       initials: "MU"
     }
   ],
