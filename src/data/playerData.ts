@@ -14,8 +14,9 @@ export const playerData: PlayerData = {
     {
       name: "Runara.ai",
       logo: "⚡",
+      logoImage: "/runara.jpg",
       position: "Product Software Developer",
-      duration: "Jan 2026 – Present",
+      duration: "Jan 2026 - Present",
       achievements: [
         "Developing automated Docker-based deployment pipelines for reproducible LLM model serving and A/B performance testing",
         "Identified underutilised Tensor Cores (7%) on H100/L40S; optimised batch size, KV cache & parallelism to boost SM occupancy by 4x",
@@ -27,21 +28,23 @@ export const playerData: PlayerData = {
     {
       name: "AllyIn.ai",
       logo: "🤖",
+      logoImage: "/allyin.jpg",
       position: "Model Research Intern",
-      duration: "July 2025 – Dec 2025",
+      duration: "July 2025 - Dec 2025",
       achievements: [
         "Built an end-to-end GPU telemetry platform using DCGM, Prometheus, TimescaleDB, FastAPI, and React to monitor GPU utilisation, throughput, and cost/performance in real time",
         "Architected a high-throughput time-series analytics layer on TimescaleDB (hypertables, retention policies, bulk ingest) handling 100M+ GPU metrics samples with fast, interactive dashboards",
-        "Designed optimisation tooling that recommends GPU clock/power limits, batch sizes, precision, and instance types — helping teams cut inference TCO by 15%"
+        "Designed optimisation tooling that recommends GPU clock/power limits, batch sizes, precision, and instance types, helping teams cut inference TCO by 15%"
       ],
       isCurrent: false,
-      url: "https://allyin.ai"
+      url: "https://www.linkedin.com/company/allyin-ai/posts/?feedView=all"
     },
     {
       name: "Heartland Community Network",
       logo: "❤️",
+      logoImage: "/heartland.jpg",
       position: "Senior Consultant (Volunteer)",
-      duration: "June 2025 – Jan 2026",
+      duration: "June 2025 - Jan 2026",
       achievements: [
         "Developed story feature with 6 REST endpoints and DynamoDB GSI, achieving 100ms like-count retrieval across thousands of stories",
         "Built a context-aware LangChain agent with hybrid search (SQL/Vector/Graph), improving response accuracy by 25%"
@@ -52,8 +55,9 @@ export const playerData: PlayerData = {
     {
       name: "Liquid Rocketry Lab",
       logo: "🚀",
+      logoImage: "/liquidrocketrylab.jpg",
       position: "Data Engineer",
-      duration: "Sept 2024 – May 2025",
+      duration: "Sept 2024 - May 2025",
       achievements: [
         "Slashed sensor data retrieval time by 96% (from 50s to 2s) by migrating InfluxDB queries from legacy InfluxQL to Flux",
         "Reduced API response time by 40% by migrating backend from Flask to FastAPI, leveraging async performance and Pydantic validation",
@@ -65,8 +69,9 @@ export const playerData: PlayerData = {
     {
       name: "Digiliyo",
       logo: "💻",
+      logoImage: "/digiliyo.jpg",
       position: "Software Engineer Intern",
-      duration: "Sept 2021 – Nov 2021",
+      duration: "Sept 2021 - Nov 2021",
       achievements: [
         "Modernised web pages using React and created interactive dashboards",
         "Collaborated with API team to improve UI responsiveness"
@@ -79,7 +84,7 @@ export const playerData: PlayerData = {
       name: "Perch Furnitures",
       logo: "🪑",
       position: "Software Engineer Intern",
-      duration: "Feb 2021 – Aug 2021",
+      duration: "Feb 2021 - Aug 2021",
       achievements: [
         "Increased customer interaction by 10% through new e-commerce features",
         "Built and maintained unit tests; optimised database queries"
@@ -94,7 +99,7 @@ export const playerData: PlayerData = {
     {
       institution: "North Carolina State University",
       degree: "Master of Computer Science",
-      duration: "Aug 2023 – May 2025",
+      duration: "Aug 2023 - May 2025",
       gpa: "3.86/4.00",
       location: "Raleigh, NC",
       logo: "🎓"
@@ -102,7 +107,7 @@ export const playerData: PlayerData = {
     {
       institution: "University of Mumbai",
       degree: "Bachelor of Engineering in Computer Engineering",
-      duration: "Aug 2019 – May 2023",
+      duration: "Aug 2019 - May 2023",
       gpa: "3.7/4.00",
       location: "Mumbai, India",
       logo: "🏛️"

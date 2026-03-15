@@ -108,7 +108,7 @@ function HoloCard({ data }: { data: PlayerData }) {
       />
 
       {/* ── Content ── */}
-      <div className="absolute inset-0 flex flex-col p-[6%]">
+      <div className="absolute inset-0 flex flex-col p-[9%]">
         {/* Top row: rating + position | badge */}
         <div className="flex justify-between items-start mb-[4%]">
           <div className="text-amber-900">
@@ -305,7 +305,14 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
               style={{ fontFamily: 'var(--font-rajdhani)' }}>
               <span className="flex items-center gap-1"><span>🇮🇳</span>{data.personalInfo.nationality}</span>
               <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{data.contact.location}</span>
-              <span className="flex items-center gap-1"><Zap className="w-3 h-3" />{data.experiences.find(e => e.isCurrent)?.name}</span>
+              {(() => { const cur = data.experiences.find(e => e.isCurrent); return cur ? (
+                <span className="flex items-center gap-1.5">
+                  {cur.logoImage
+                    ? <img src={cur.logoImage} alt={cur.name} className="w-4 h-4 rounded object-cover border border-white/10" />
+                    : <Zap className="w-3 h-3" />}
+                  {cur.name}
+                </span>
+              ) : null; })()}
             </div>
           </div>
 
@@ -351,15 +358,15 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                         style={{ fontFamily: 'var(--font-anton)' }}>
                         <Briefcase className="w-4 h-4" /> ABOUT THE PLAYER
                       </h4>
-                      <p className="text-amber-100/75 text-sm leading-relaxed"
+                      <p className="text-amber-100/90 text-sm leading-relaxed"
                         style={{ fontFamily: 'var(--font-rajdhani)' }}>
                         I am a deep-lying playmaker on a tech team. By day, I architect ML infrastructure pipelines
-                        and optimise LLM inference engines — squeezing 4× more throughput out of H100s and slashing
+                        and optimise LLM inference engines, squeezing 4x more throughput out of H100s and slashing
                         cloud costs by 35%. Instead of through-balls, I deliver assists like cutting sensor retrieval
                         from 50s to 2s and building GPU telemetry platforms that handle 100M+ metric samples.
                         When I&apos;m not debugging CUDA occupancy, you&apos;ll find me analysing soccer tactics,
                         diving into history documentaries, or disappearing down YouTube rabbit holes about human behaviour.
-                        I thrive on understanding the <em>&ldquo;why&rdquo;</em> — whether in a CI/CD pipeline or in people.
+                        I thrive on understanding the <em>&ldquo;why&rdquo;</em>, whether in a CI/CD pipeline or in people.
                       </p>
                     </SectionCard>
 
@@ -399,7 +406,10 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                         transition={{ delay: i * 0.07 }}>
                         <SectionCard className={`border-l-[3px] ${exp.isCurrent ? 'border-l-amber-400' : 'border-l-white/10'}`}>
                           <div className="flex items-start gap-3">
-                            <span className="text-2xl shrink-0 mt-0.5">{exp.logo}</span>
+                            {exp.logoImage
+                              ? <img src={exp.logoImage} alt={exp.name} className="w-9 h-9 rounded-lg object-cover shrink-0 mt-0.5 border border-white/10" />
+                              : <span className="text-2xl shrink-0 mt-0.5">{exp.logo}</span>
+                            }
                             <div className="flex-1 min-w-0">
                               <div className="flex flex-wrap items-center gap-2 mb-0.5">
                                 <h5 className="text-white font-black text-sm"
@@ -448,7 +458,10 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                               exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.25 }}>
                               <SectionCard className="mt-2 border-l-[3px] border-l-white/5 opacity-60">
                                 <div className="flex items-start gap-3">
-                                  <span className="text-xl shrink-0 mt-0.5">{exp.logo}</span>
+                                  {exp.logoImage
+                                    ? <img src={exp.logoImage} alt={exp.name} className="w-7 h-7 rounded object-cover shrink-0 mt-0.5 border border-white/10" />
+                                    : <span className="text-xl shrink-0 mt-0.5">{exp.logo}</span>
+                                  }
                                   <div>
                                     <h5 className="text-white/70 font-bold text-sm">{exp.name}</h5>
                                     <p className="text-amber-300/50 text-xs">{exp.position}</p>

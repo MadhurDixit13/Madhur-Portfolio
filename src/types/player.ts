@@ -1,6 +1,7 @@
 export interface Experience {
   name: string;
   logo: string;
+  logoImage?: string;
   position: string;
   duration: string;
   achievements: string[];
