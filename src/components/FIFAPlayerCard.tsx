@@ -117,9 +117,8 @@ function HoloCard({ data }: { data: PlayerData }) {
               <AnimatedCounter value={data.stats.overall} />
             </div>
             <div className="font-bold tracking-wider text-amber-200/80"
-              style={{ fontSize: 'clamp(8px, 1vw, 11px)' }}>ENG</div>
-            <div style={{ fontSize: 'clamp(10px, 1.4vw, 16px)' }} className="mt-1">🇮🇳</div>
-            <div style={{ fontSize: 'clamp(10px, 1.4vw, 16px)' }}>⚡</div>
+              style={{ fontSize: 'clamp(10px, 1.2vw, 13px)' }}>ENG</div>
+            <div style={{ fontSize: 'clamp(12px, 1.6vw, 18px)' }} className="mt-1">🇮🇳</div>
           </div>
           <div className="bg-black/50 rounded px-1.5 py-0.5 border border-amber-400/30">
             <div className="text-amber-300 font-black tracking-widest"
@@ -141,11 +140,11 @@ function HoloCard({ data }: { data: PlayerData }) {
           {statRows.slice(0, 5).map(s => (
             <div key={s.label} className="text-center">
               <div className="font-black text-amber-100 leading-none"
-                style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(10px, 1.5vw, 15px)' }}>
+                style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(11px, 1.6vw, 16px)' }}>
                 {s.value}
               </div>
               <div className="text-amber-300/70 font-bold mt-0.5"
-                style={{ fontSize: 'clamp(6px, 0.8vw, 8px)' }}>{s.label}</div>
+                style={{ fontSize: 'clamp(8px, 0.9vw, 10px)' }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -153,7 +152,7 @@ function HoloCard({ data }: { data: PlayerData }) {
         {/* Name */}
         <div className="text-center mt-[2%]">
           <div className="font-black tracking-[0.12em] text-amber-100"
-            style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(9px, 1.3vw, 13px)' }}>
+            style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(11px, 1.5vw, 15px)' }}>
             MADHUR DIXIT
           </div>
         </div>
@@ -303,7 +302,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
             </p>
             <div className="flex flex-wrap gap-3 mt-2 text-xs text-amber-400/70"
               style={{ fontFamily: 'var(--font-rajdhani)' }}>
-              <span className="flex items-center gap-1"><span>🇮🇳</span>{data.personalInfo.nationality}</span>
+              <span className="flex items-center gap-1"><span>🇮🇳</span>Nationality: {data.personalInfo.nationality}</span>
               <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{data.contact.location}</span>
               {(() => { const cur = data.experiences.find(e => e.isCurrent); return cur ? (
                 <span className="flex items-center gap-1.5">
@@ -323,7 +322,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
               <button
                 key={t.id}
                 onClick={() => switchTab(t.id)}
-                className={`flex-shrink-0 relative py-2 px-2.5 sm:px-3.5 rounded-lg text-[10px] sm:text-xs font-black tracking-wider transition-all duration-150 ${
+                className={`flex-shrink-0 relative py-2 px-2.5 sm:px-3.5 rounded-lg text-[11px] sm:text-xs font-black tracking-wider transition-all duration-150 ${
                   activeTab === t.id
                     ? 'text-black shadow-md'
                     : 'text-amber-300/60 hover:text-amber-200 hover:bg-white/5'
@@ -429,7 +428,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                               <p className="text-amber-400/50 text-xs mb-2">{exp.duration}</p>
                               <ul className="space-y-1">
                                 {exp.achievements.map((a, ai) => (
-                                  <li key={ai} className="text-amber-100/60 text-xs flex gap-1.5 leading-relaxed"
+                                  <li key={ai} className="text-amber-100/80 text-xs flex gap-1.5 leading-relaxed"
                                     style={{ fontFamily: 'var(--font-rajdhani)' }}>
                                     <Trophy className="w-3 h-3 text-amber-400/60 shrink-0 mt-0.5" />{a}
                                   </li>
@@ -486,7 +485,18 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                         transition={{ delay: i * 0.1 }}>
                         <SectionCard className="h-full">
                           <div className="flex items-start gap-3">
-                            <span className="text-3xl shrink-0">{edu.logo}</span>
+                            {edu.logoImage
+                              ? <img src={edu.logoImage} alt={edu.institution} className="w-12 h-12 rounded-lg object-contain shrink-0 mt-0.5 border border-white/10 bg-white/5 p-1" />
+                              : (
+                                <div className="w-12 h-12 rounded-lg shrink-0 mt-0.5 flex items-center justify-center border border-amber-400/30"
+                                  style={{ background: 'linear-gradient(135deg, rgba(251,191,36,0.15) 0%, rgba(251,191,36,0.05) 100%)' }}>
+                                  <span className="text-amber-300 font-black text-center leading-none"
+                                    style={{ fontFamily: 'var(--font-anton)', fontSize: edu.initials && edu.initials.length > 2 ? 8 : 12 }}>
+                                    {edu.initials || edu.institution.slice(0, 2).toUpperCase()}
+                                  </span>
+                                </div>
+                              )
+                            }
                             <div>
                               <h5 className="text-white font-black text-base leading-tight mb-1"
                                 style={{ fontFamily: 'var(--font-rajdhani)' }}>{edu.institution}</h5>
@@ -514,7 +524,6 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                         transition={{ delay: i * 0.07 }}>
                         <SectionCard>
                           <div className="flex items-center gap-2 mb-3">
-                            <span className="text-xl">{cat.icon}</span>
                             <h5 className="text-white font-black text-sm tracking-wide"
                               style={{ fontFamily: 'var(--font-rajdhani)' }}>{cat.category}</h5>
                           </div>
@@ -567,7 +576,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                                   </h5>
                                   <span className="text-amber-400/40 text-xs shrink-0">{proj.year}</span>
                                 </div>
-                                <p className="text-amber-100/50 text-xs leading-relaxed mb-2 line-clamp-2"
+                                <p className="text-amber-100/70 text-xs leading-relaxed mb-2 line-clamp-2"
                                   style={{ fontFamily: 'var(--font-rajdhani)' }}>{proj.description}</p>
                                 <div className="flex flex-wrap gap-1">
                                   {proj.technologies.map((t, idx) => (
@@ -604,7 +613,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                           {r.conferenceId && (
                             <p className="text-amber-400/40 text-xs font-mono mb-2">{r.conferenceId}</p>
                           )}
-                          <p className="text-amber-100/50 text-xs leading-relaxed"
+                          <p className="text-amber-100/70 text-xs leading-relaxed"
                             style={{ fontFamily: 'var(--font-rajdhani)' }}>{r.description}</p>
                         </SectionCard>
                       </motion.div>
@@ -627,7 +636,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                               {blog.platform}
                             </span>
                           </div>
-                          <p className="text-amber-100/50 text-xs leading-relaxed mb-3 flex-1"
+                          <p className="text-amber-100/70 text-xs leading-relaxed mb-3 flex-1"
                             style={{ fontFamily: 'var(--font-rajdhani)' }}>{blog.description}</p>
                           <div className="flex items-center justify-between text-[10px] text-amber-400/40 mb-2">
                             <span>{blog.date}</span><span>{blog.readTime}</span>

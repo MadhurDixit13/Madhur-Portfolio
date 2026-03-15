@@ -87,48 +87,34 @@ function GoldCardFront({ glowing }: { glowing: boolean }) {
         style={{ background: 'linear-gradient(160deg, #1a1205 0%, #0d0a05 100%)' }} />
 
       {/* Content */}
-      <div className="absolute inset-[6%] flex flex-col" style={{ gap: '3%' }}>
-        {/* Top row */}
+      <div className="absolute inset-[6%] flex flex-col" style={{ gap: '4%' }}>
+        {/* Top row: rating + badge */}
         <div className="flex justify-between items-start">
           <div>
             <div className="font-black text-amber-100 leading-none"
-              style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(20px, 3.8vw, 32px)' }}>93</div>
-            <div className="text-amber-200/80 font-bold"
-              style={{ fontSize: 'clamp(7px, 1.1vw, 10px)' }}>ENG</div>
-            <div style={{ fontSize: 'clamp(10px, 1.6vw, 14px)', marginTop: 2 }}>🇮🇳</div>
+              style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(22px, 4vw, 34px)' }}>93</div>
+            <div className="text-amber-200/80 font-bold mt-0.5"
+              style={{ fontSize: 'clamp(9px, 1.2vw, 12px)' }}>ENG</div>
+            <div style={{ fontSize: 'clamp(12px, 1.8vw, 16px)', marginTop: 2 }}>🇮🇳</div>
           </div>
           <div className="bg-black/50 rounded px-1.5 py-0.5 border border-amber-400/40">
             <div className="font-black text-amber-300"
-              style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(6px, 0.9vw, 9px)', letterSpacing: '0.1em' }}>BUILDER</div>
+              style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(7px, 1vw, 10px)', letterSpacing: '0.1em' }}>BUILDER</div>
           </div>
         </div>
 
-        {/* Photo */}
+        {/* Photo — takes up most of the card */}
         <div className="flex-1 rounded overflow-hidden relative" style={{ minHeight: 0 }}>
           <div className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: "url('/madhur-photo.jpg')", backgroundPosition: 'center 15%' }} />
           <div className="absolute inset-0"
-            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%)' }} />
-        </div>
-
-        {/* Stats */}
-        <div className="flex justify-around py-[3%]"
-          style={{ borderTop: '1px solid rgba(251,191,36,0.3)', borderBottom: '1px solid rgba(251,191,36,0.3)' }}>
-          {[['95','TEC'],['94','SOL'],['93','INV'],['91','COM'],['88','LED']].map(([v, l]) => (
-            <div key={l} className="text-center">
-              <div className="font-black text-amber-100 leading-none"
-                style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(9px, 1.5vw, 13px)' }}>{v}</div>
-              <div className="text-amber-300/70 font-bold"
-                style={{ fontSize: 'clamp(5px, 0.8vw, 7px)' }}>{l}</div>
+            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%)' }} />
+          {/* Name overlaid on photo bottom */}
+          <div className="absolute bottom-0 left-0 right-0 text-center pb-[6%]">
+            <div className="font-black text-amber-100 tracking-[0.1em]"
+              style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(10px, 1.6vw, 14px)', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
+              MADHUR DIXIT
             </div>
-          ))}
-        </div>
-
-        {/* Name */}
-        <div className="text-center">
-          <div className="font-black text-amber-100 tracking-[0.12em]"
-            style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(8px, 1.3vw, 11px)' }}>
-            MADHUR DIXIT
           </div>
         </div>
       </div>

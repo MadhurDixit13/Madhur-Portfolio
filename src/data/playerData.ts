@@ -3,8 +3,8 @@ import { PlayerData } from '@/types/player';
 export const playerData: PlayerData = {
   personalInfo: {
     name: "MADHUR DIXIT",
-    position: "Product Software Developer",
-    nationality: "India",
+    position: "Software Developer",
+    nationality: "Indian",
     age: 24,
     photo: "/madhur-photo.jpg",
     kitNumber: 13
@@ -102,7 +102,8 @@ export const playerData: PlayerData = {
       duration: "Aug 2023 - May 2025",
       gpa: "3.86/4.00",
       location: "Raleigh, NC",
-      logo: "🎓"
+      logo: "🎓",
+      initials: "NC STATE"
     },
     {
       institution: "University of Mumbai",
@@ -110,7 +111,8 @@ export const playerData: PlayerData = {
       duration: "Aug 2019 - May 2023",
       gpa: "3.7/4.00",
       location: "Mumbai, India",
-      logo: "🏛️"
+      logo: "🏛️",
+      initials: "MU"
     }
   ],
 

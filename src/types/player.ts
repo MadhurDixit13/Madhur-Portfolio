@@ -17,6 +17,8 @@ export interface Education {
   gpa: string;
   location: string;
   logo: string;
+  logoImage?: string;
+  initials?: string;
 }
 
 export interface Coursework {
