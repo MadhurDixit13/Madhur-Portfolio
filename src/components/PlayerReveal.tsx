@@ -86,35 +86,30 @@ function GoldCardFront({ glowing }: { glowing: boolean }) {
       <div className="absolute inset-[6%] rounded-[0.5rem]"
         style={{ background: 'linear-gradient(160deg, #1a1205 0%, #0d0a05 100%)' }} />
 
-      {/* Content */}
-      <div className="absolute inset-[6%] flex flex-col" style={{ gap: '4%' }}>
-        {/* Top row: rating + badge */}
-        <div className="flex justify-between items-start">
-          <div>
-            <div className="font-black text-amber-100 leading-none"
-              style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(22px, 4vw, 34px)' }}>93</div>
-            <div className="text-amber-200/80 font-bold mt-0.5"
-              style={{ fontSize: 'clamp(9px, 1.2vw, 12px)' }}>ENG</div>
-            <div style={{ fontSize: 'clamp(12px, 1.8vw, 16px)', marginTop: 2 }}>🇮🇳</div>
-          </div>
-          <div className="bg-black/50 rounded px-1.5 py-0.5 border border-amber-400/40">
-            <div className="font-black text-amber-300"
-              style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(7px, 1vw, 10px)', letterSpacing: '0.1em' }}>BUILDER</div>
+      {/* Content — mirrors silver card structure: rating/pos top-left, photo, name bottom */}
+      <div className="absolute inset-[6%] flex flex-col p-[8%]">
+        {/* Rating + position */}
+        <div>
+          <div className="font-black text-amber-100 leading-none"
+            style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(18px, 3.5vw, 26px)' }}>93</div>
+          <div className="text-amber-300 font-bold mt-0.5"
+            style={{ fontSize: 'clamp(7px, 1vw, 9px)' }}>ENG</div>
+        </div>
+
+        {/* Photo */}
+        <div className="flex-1 flex items-center justify-center mt-[6%]">
+          <div className="rounded-lg overflow-hidden"
+            style={{ width: '70%', aspectRatio: '1/1.2', position: 'relative' }}>
+            <div className="absolute inset-0 bg-cover bg-top"
+              style={{ backgroundImage: "url('/madhur-photo.jpg')" }} />
           </div>
         </div>
 
-        {/* Photo — takes up most of the card */}
-        <div className="flex-1 rounded overflow-hidden relative" style={{ minHeight: 0 }}>
-          <div className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: "url('/madhur-photo.jpg')", backgroundPosition: 'center 15%' }} />
-          <div className="absolute inset-0"
-            style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%)' }} />
-          {/* Name overlaid on photo bottom */}
-          <div className="absolute bottom-0 left-0 right-0 text-center pb-[6%]">
-            <div className="font-black text-amber-100 tracking-[0.1em]"
-              style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(10px, 1.6vw, 14px)', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
-              MADHUR DIXIT
-            </div>
+        {/* Name */}
+        <div className="text-center mt-[6%]">
+          <div className="font-black text-amber-100 tracking-[0.05em]"
+            style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(7px, 1.1vw, 10px)' }}>
+            MADHUR DIXIT
           </div>
         </div>
       </div>

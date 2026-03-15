@@ -357,7 +357,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                         style={{ fontFamily: 'var(--font-anton)' }}>
                         <Briefcase className="w-4 h-4" /> ABOUT THE PLAYER
                       </h4>
-                      <p className="text-amber-100/90 text-sm leading-relaxed"
+                      <p className="text-amber-100/90 text-sm leading-relaxed font-semibold"
                         style={{ fontFamily: 'var(--font-rajdhani)' }}>
                         I am a deep-lying playmaker on a tech team. By day, I architect ML infrastructure pipelines
                         and optimise LLM inference engines, squeezing 4x more throughput out of H100s and slashing
@@ -428,7 +428,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                               <p className="text-amber-400/50 text-xs mb-2">{exp.duration}</p>
                               <ul className="space-y-1">
                                 {exp.achievements.map((a, ai) => (
-                                  <li key={ai} className="text-amber-100/80 text-xs flex gap-1.5 leading-relaxed"
+                                  <li key={ai} className="text-amber-100/80 text-xs flex gap-1.5 leading-relaxed font-semibold"
                                     style={{ fontFamily: 'var(--font-rajdhani)' }}>
                                     <Trophy className="w-3 h-3 text-amber-400/60 shrink-0 mt-0.5" />{a}
                                   </li>
@@ -576,7 +576,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                                   </h5>
                                   <span className="text-amber-400/40 text-xs shrink-0">{proj.year}</span>
                                 </div>
-                                <p className="text-amber-100/70 text-xs leading-relaxed mb-2 line-clamp-2"
+                                <p className="text-amber-100/70 text-xs leading-relaxed mb-2 line-clamp-2 font-semibold"
                                   style={{ fontFamily: 'var(--font-rajdhani)' }}>{proj.description}</p>
                                 <div className="flex flex-wrap gap-1">
                                   {proj.technologies.map((t, idx) => (
@@ -613,7 +613,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                           {r.conferenceId && (
                             <p className="text-amber-400/40 text-xs font-mono mb-2">{r.conferenceId}</p>
                           )}
-                          <p className="text-amber-100/70 text-xs leading-relaxed"
+                          <p className="text-amber-100/70 text-xs leading-relaxed font-semibold"
                             style={{ fontFamily: 'var(--font-rajdhani)' }}>{r.description}</p>
                         </SectionCard>
                       </motion.div>
@@ -636,7 +636,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                               {blog.platform}
                             </span>
                           </div>
-                          <p className="text-amber-100/70 text-xs leading-relaxed mb-3 flex-1"
+                          <p className="text-amber-100/70 text-xs leading-relaxed mb-3 flex-1 font-semibold"
                             style={{ fontFamily: 'var(--font-rajdhani)' }}>{blog.description}</p>
                           <div className="flex items-center justify-between text-[10px] text-amber-400/40 mb-2">
                             <span>{blog.date}</span><span>{blog.readTime}</span>

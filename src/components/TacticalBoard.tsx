@@ -20,7 +20,7 @@ function TechLogo({ slug, alt, size = 28 }: { slug: string; alt: string; size?: 
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type ConceptId = 'kafka' | 'spark' | 'docker' | 'kubernetes' | 'timescaledb' | 'langchain';
+type ConceptId = 'kafka' | 'spark' | 'docker' | 'kubernetes' | 'timescaledb' | 'langchain' | 'redis' | 'airflow' | 'fastapi';
 
 interface Concept {
   id: ConceptId;
@@ -111,6 +111,44 @@ const CONCEPTS: Concept[] = [
     summary: 'LangChain is the playmaker, connecting LLMs to memory, tools, and search systems. Used to build a context-aware agent with hybrid search (SQL + Vector + Graph) that routes each question to the right data source.',
     matchLog: [
       { label: 'Heartland Community Network', url: 'https://www.heartlandnet.com/' },
+    ],
+  },
+  {
+    id: 'redis',
+    name: 'REDIS',
+    tagline: 'The Quick Release',
+    type: 'IN-MEMORY STORE',
+    difficulty: 65, impact: 91, reuse: 94, rating: 89,
+    iconSlug: 'redis',
+    summary: 'Redis is the quick release — it bypasses the midfield entirely and delivers answers in microseconds from in-memory storage. First request hits the database; every repeat is served from cache. Used for job queues (Celery broker) and rate-limiting in the GPU telemetry platform.',
+    matchLog: [
+      { label: 'AllyIn.ai — GPU telemetry rate limiting', url: 'https://www.linkedin.com/company/allyin-ai/posts/?feedView=all' },
+      { label: 'Runara.ai — inference job queue (Celery)', url: '' },
+    ],
+  },
+  {
+    id: 'airflow',
+    name: 'APACHE AIRFLOW',
+    tagline: 'The Match Schedule',
+    type: 'WORKFLOW ORCHESTRATOR',
+    difficulty: 76, impact: 89, reuse: 87, rating: 86,
+    iconSlug: 'apacheairflow',
+    summary: 'Airflow is the fixture list — it defines the order, dependencies, and timing of every task in a pipeline. DAGs make workflows visual and debuggable. Used in SentimentFlow to orchestrate the full Reddit ingestion, sentiment scoring, and reporting pipeline on a schedule.',
+    matchLog: [
+      { label: 'Reddit SentimentFlow', url: 'https://github.com/MadhurDixit13/SentimentFlow' },
+    ],
+  },
+  {
+    id: 'fastapi',
+    name: 'FASTAPI',
+    tagline: 'The Box-to-Box Runner',
+    type: 'ASYNC API FRAMEWORK',
+    difficulty: 60, impact: 90, reuse: 95, rating: 88,
+    iconSlug: 'fastapi',
+    summary: 'FastAPI is the box-to-box midfielder — fast, async, and everywhere at once. Its automatic OpenAPI docs and Pydantic validation mean fewer errors at the boundary. Replaced Flask at Liquid Rocketry Lab, cutting API response time by 40% through async I/O.',
+    matchLog: [
+      { label: 'Liquid Rocketry Lab — Flask to FastAPI migration', url: 'https://liquidrocketry.com/' },
+      { label: 'AllyIn.ai — GPU metrics API', url: 'https://www.linkedin.com/company/allyin-ai/posts/?feedView=all' },
     ],
   },
 ];
@@ -625,6 +663,304 @@ function LangChainDiagram() {
   );
 }
 
+// ─── Redis animation ──────────────────────────────────────────────────────────
+interface CacheEntry { key: string; value: string; ttl: number; maxTtl: number }
+
+function RedisDiagram() {
+  const [cache, setCache] = useState<CacheEntry[]>([
+    { key: 'user:42', value: '{ name: "Alice" }', ttl: 28, maxTtl: 30 },
+    { key: 'gpu:util', value: '{ sm: 87% }', ttl: 10, maxTtl: 10 },
+  ]);
+  const [lastGet, setLastGet] = useState<{ key: string; hit: boolean } | null>(null);
+  const [hitCount, setHitCount] = useState(0);
+  const [missCount, setMissCount] = useState(0);
+
+  // TTL countdown
+  useEffect(() => {
+    const t = setInterval(() => {
+      setCache(prev => prev
+        .map(e => ({ ...e, ttl: e.ttl - 1 }))
+        .filter(e => e.ttl > 0));
+    }, 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const getKey = (key: string) => {
+    const hit = cache.some(e => e.key === key);
+    setLastGet({ key, hit });
+    if (hit) setHitCount(c => c + 1);
+    else {
+      setMissCount(c => c + 1);
+      // Simulate DB fetch + cache set
+      const entries: Record<string, string> = { 'user:42': '{ name: "Alice" }', 'session:99': '{ token: "xyz" }', 'gpu:util': '{ sm: 87% }' };
+      if (entries[key]) {
+        setCache(prev => [...prev.filter(e => e.key !== key), { key, value: entries[key], ttl: 20, maxTtl: 20 }]);
+      }
+    }
+    setTimeout(() => setLastGet(null), 1200);
+  };
+
+  const KEYS = ['user:42', 'session:99', 'gpu:util'];
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-xl border border-white/8 bg-black/30 p-3">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5">
+            <TechLogo slug="redis" alt="Redis" size={14} />
+            <span className="text-[9px] font-black text-red-400" style={{ fontFamily: 'var(--font-anton)' }}>CACHE STORE</span>
+          </div>
+          <div className="flex gap-3 text-[9px]">
+            <span className="text-emerald-400">HIT {hitCount}</span>
+            <span className="text-red-400">MISS {missCount}</span>
+          </div>
+        </div>
+        {/* Cache entries */}
+        <div className="space-y-1.5 mb-2">
+          {cache.length === 0 && <div className="text-white/20 text-[9px] text-center py-2">cache empty</div>}
+          {cache.map(e => (
+            <div key={e.key} className="flex items-center gap-2 rounded-lg px-2 py-1.5 border border-white/8 bg-white/[0.02]">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
+              <span className="text-red-300 text-[9px] font-black w-20 shrink-0" style={{ fontFamily: 'var(--font-anton)' }}>{e.key}</span>
+              <span className="text-white/40 text-[8px] flex-1 truncate">{e.value}</span>
+              <div className="shrink-0 text-[8px] text-amber-400/60 w-16">
+                <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                  <motion.div className="h-full bg-amber-400/60 rounded-full"
+                    style={{ width: `${(e.ttl / e.maxTtl) * 100}%` }} />
+                </div>
+                <div className="text-center mt-0.5">{e.ttl}s</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* GET result */}
+        <AnimatePresence>
+          {lastGet && (
+            <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+              className={`text-[9px] font-black px-2 py-1 rounded border mb-2 ${lastGet.hit ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-red-500/40 bg-red-500/10 text-red-300'}`}
+              style={{ fontFamily: 'var(--font-anton)' }}>
+              {lastGet.hit ? `CACHE HIT — ${lastGet.key}` : `CACHE MISS — fetching from DB...`}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {KEYS.map(k => (
+          <button key={k} onClick={() => getKey(k)}
+            className="flex items-center gap-1 bg-red-500/10 hover:bg-red-500/20 text-red-300 text-[10px] font-black px-2.5 py-1.5 rounded-lg border border-red-500/25 transition-colors"
+            style={{ fontFamily: 'var(--font-anton)' }}>
+            GET {k}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Airflow animation ────────────────────────────────────────────────────────
+type TaskStatus = 'idle' | 'running' | 'success' | 'failed';
+interface AirflowTask { id: string; label: string; deps: string[] }
+
+const DAG_TASKS: AirflowTask[] = [
+  { id: 'fetch', label: 'FETCH', deps: [] },
+  { id: 'validate', label: 'VALIDATE', deps: ['fetch'] },
+  { id: 'transform', label: 'TRANSFORM', deps: ['validate'] },
+  { id: 'sentiment', label: 'SENTIMENT', deps: ['transform'] },
+  { id: 'load', label: 'LOAD', deps: ['sentiment'] },
+];
+
+function AirflowDiagram() {
+  const [statuses, setStatuses] = useState<Record<string, TaskStatus>>({});
+  const [running, setRunning] = useState(false);
+  const [dagRuns, setDagRuns] = useState(0);
+
+  const triggerDag = () => {
+    if (running) return;
+    setRunning(true);
+    setDagRuns(r => r + 1);
+    const init: Record<string, TaskStatus> = {};
+    DAG_TASKS.forEach(t => { init[t.id] = 'idle'; });
+    setStatuses(init);
+
+    DAG_TASKS.forEach((task, i) => {
+      setTimeout(() => {
+        setStatuses(prev => ({ ...prev, [task.id]: 'running' }));
+        setTimeout(() => {
+          setStatuses(prev => ({ ...prev, [task.id]: 'success' }));
+          if (i === DAG_TASKS.length - 1) setRunning(false);
+        }, 700);
+      }, i * 900);
+    });
+  };
+
+  const statusColor = (s: TaskStatus) => ({
+    idle: 'rgba(255,255,255,0.08)',
+    running: 'rgba(251,191,36,0.2)',
+    success: 'rgba(52,211,153,0.2)',
+    failed: 'rgba(239,68,68,0.2)',
+  }[s]);
+
+  const statusBorder = (s: TaskStatus) => ({
+    idle: 'rgba(255,255,255,0.1)',
+    running: 'rgba(251,191,36,0.5)',
+    success: 'rgba(52,211,153,0.5)',
+    failed: 'rgba(239,68,68,0.5)',
+  }[s]);
+
+  const statusTextColor = (s: TaskStatus) => ({
+    idle: 'rgba(255,255,255,0.3)',
+    running: '#fbbf24',
+    success: '#34d399',
+    failed: '#ef4444',
+  }[s]);
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-xl border border-white/8 bg-black/30 p-3">
+        <div className="flex items-center gap-1.5 mb-3">
+          <TechLogo slug="apacheairflow" alt="Airflow" size={14} />
+          <span className="text-[9px] font-black text-amber-400" style={{ fontFamily: 'var(--font-anton)' }}>
+            sentimentflow_dag {dagRuns > 0 && `· run #${dagRuns}`}
+          </span>
+        </div>
+        {/* DAG pipeline — horizontal */}
+        <div className="flex items-center gap-1 overflow-x-auto pb-1">
+          {DAG_TASKS.map((task, i) => {
+            const s = statuses[task.id] ?? 'idle';
+            return (
+              <div key={task.id} className="flex items-center gap-1 shrink-0">
+                <motion.div
+                  animate={s === 'running' ? { scale: [1, 1.08, 1] } : {}}
+                  transition={{ duration: 0.5, repeat: s === 'running' ? Infinity : 0 }}
+                  className="rounded-lg px-2 py-2 text-center border transition-all duration-300"
+                  style={{ background: statusColor(s), borderColor: statusBorder(s), minWidth: 52 }}>
+                  <div className="text-[8px] font-black" style={{ fontFamily: 'var(--font-anton)', color: statusTextColor(s) }}>
+                    {task.label}
+                  </div>
+                  <div className="text-[7px] mt-0.5" style={{ color: statusTextColor(s) }}>
+                    {s === 'idle' ? 'queued' : s === 'running' ? '▶ running' : s === 'success' ? '✓ done' : '✗ fail'}
+                  </div>
+                </motion.div>
+                {i < DAG_TASKS.length - 1 && (
+                  <motion.div animate={s === 'success' ? { opacity: 1 } : { opacity: 0.2 }}
+                    className="text-amber-400 text-xs">→</motion.div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <button onClick={triggerDag} disabled={running}
+          className="flex items-center gap-1.5 bg-amber-400/15 hover:bg-amber-400/25 disabled:opacity-40 text-amber-300 text-xs font-black px-3 py-1.5 rounded-lg border border-amber-400/25 transition-colors"
+          style={{ fontFamily: 'var(--font-anton)' }}>
+          <ChevronRight className="w-3 h-3" /> {running ? 'RUNNING...' : 'TRIGGER DAG'}
+        </button>
+        <span className="text-amber-400/50 text-xs">{dagRuns} runs</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── FastAPI animation ────────────────────────────────────────────────────────
+interface ApiRequest { id: number; path: string; method: string; status: 'pending' | 'done'; duration: number; elapsed: number }
+
+function FastAPIDiagram() {
+  const [requests, setRequests] = useState<ApiRequest[]>([]);
+  const [totalReqs, setTotalReqs] = useState(0);
+  const nextId = useRef(0);
+
+  const ENDPOINTS = [
+    { path: '/metrics/gpu', method: 'GET', duration: 40 },
+    { path: '/batch/infer', method: 'POST', duration: 120 },
+    { path: '/health', method: 'GET', duration: 15 },
+    { path: '/models/list', method: 'GET', duration: 55 },
+  ];
+
+  const fireRequests = () => {
+    const batch = ENDPOINTS.map(ep => ({
+      id: nextId.current++,
+      path: ep.path,
+      method: ep.method,
+      status: 'pending' as const,
+      duration: ep.duration,
+      elapsed: 0,
+    }));
+    setRequests(batch);
+    setTotalReqs(t => t + batch.length);
+
+    batch.forEach(req => {
+      setTimeout(() => {
+        setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'done' } : r));
+      }, req.duration);
+    });
+  };
+
+  // Progress animation
+  useEffect(() => {
+    const t = setInterval(() => {
+      setRequests(prev => prev.map(r =>
+        r.status === 'pending' ? { ...r, elapsed: Math.min(r.elapsed + 8, r.duration) } : r
+      ));
+    }, 16);
+    return () => clearInterval(t);
+  }, []);
+
+  const methodColor = (m: string) => m === 'GET' ? '#34d399' : '#60a5fa';
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-xl border border-white/8 bg-black/30 p-3">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-1.5">
+            <TechLogo slug="fastapi" alt="FastAPI" size={14} />
+            <span className="text-[9px] font-black text-emerald-400" style={{ fontFamily: 'var(--font-anton)' }}>ASYNC FASTAPI</span>
+          </div>
+          <span className="text-[9px] text-white/30">{totalReqs} requests served</span>
+        </div>
+        {/* Request list */}
+        <div className="space-y-1.5">
+          {requests.length === 0 && (
+            <div className="text-white/20 text-[9px] text-center py-3">fire requests to see async handling</div>
+          )}
+          {requests.map(req => (
+            <div key={req.id} className="flex items-center gap-2">
+              <span className="text-[8px] font-black w-8 shrink-0"
+                style={{ fontFamily: 'var(--font-anton)', color: methodColor(req.method) }}>{req.method}</span>
+              <span className="text-white/50 text-[9px] w-28 shrink-0 truncate">{req.path}</span>
+              <div className="flex-1 h-1.5 bg-white/8 rounded-full overflow-hidden">
+                <motion.div className="h-full rounded-full"
+                  style={{
+                    width: `${(req.elapsed / req.duration) * 100}%`,
+                    background: req.status === 'done' ? '#34d399' : '#fbbf24',
+                  }} />
+              </div>
+              <span className="text-[8px] w-10 text-right shrink-0"
+                style={{ color: req.status === 'done' ? '#34d399' : '#fbbf24' }}>
+                {req.status === 'done' ? `${req.duration}ms` : '...'}
+              </span>
+            </div>
+          ))}
+        </div>
+        {requests.length > 0 && requests.every(r => r.status === 'done') && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="mt-2 text-[8px] text-emerald-400/70 text-center">
+            All handled concurrently — async = no blocking
+          </motion.div>
+        )}
+      </div>
+      <div className="flex items-center justify-between">
+        <button onClick={fireRequests}
+          className="flex items-center gap-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 text-xs font-black px-3 py-1.5 rounded-lg border border-emerald-500/25 transition-colors"
+          style={{ fontFamily: 'var(--font-anton)' }}>
+          <ChevronRight className="w-3 h-3" /> FIRE REQUESTS
+        </button>
+        <span className="text-amber-400/50 text-xs">all run concurrently</span>
+      </div>
+    </div>
+  );
+}
+
 // ─── Stat pill ────────────────────────────────────────────────────────────────
 function ConceptStat({ label, value }: { label: string; value: number }) {
   return (
@@ -671,6 +1007,9 @@ function ConceptDiagram({ id }: { id: ConceptId }) {
     case 'kubernetes':  return <KubernetesDiagram />;
     case 'timescaledb': return <TimescaleDBDiagram />;
     case 'langchain':   return <LangChainDiagram />;
+    case 'redis':       return <RedisDiagram />;
+    case 'airflow':     return <AirflowDiagram />;
+    case 'fastapi':     return <FastAPIDiagram />;
   }
 }
 
@@ -726,7 +1065,7 @@ export default function TacticalBoard() {
           TACTICAL PLAYBOOK
         </div>
         <p className="text-amber-100/55 text-xs" style={{ fontFamily: 'var(--font-rajdhani)' }}>
-          Six technologies I&apos;ve run in production, broken down like match tactics. Pick a card and interact with the live demo.
+          Nine technologies I&apos;ve run in production, broken down like match tactics. Pick a card and interact with the live demo.
         </p>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
