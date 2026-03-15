@@ -35,7 +35,13 @@
     --font-sans: 'Geist Sans', sans-serif;
     --font-mono: 'Geist Mono', monospace;
     --font-condensed: 'Arial Narrow', Arial, sans-serif;
+    /* Injected by next/font/google in layout.tsx */
+    /* --font-anton and --font-rajdhani are set via className variables */
   }
+
+  /* Hide scrollbar utility */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
   @media (prefers-color-scheme: light) {
     :root {

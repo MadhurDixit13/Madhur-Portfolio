@@ -1,6 +1,20 @@
 import type { Metadata } from "next";
+import { Anton, Rajdhani } from "next/font/google";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
+
+const anton = Anton({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-anton",
+});
+
+const rajdhani = Rajdhani({
+  weight: ["400", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-rajdhani",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,13 +27,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Madhur Dixit - Software/Data Engineer",
-  description: "Portfolio of Madhur Dixit, Software Engineer specializing in ML Infrastructure, Data Engineering, and QA Automation. Experience with Python, AWS, Docker, and modern web technologies.",
-  keywords: ["Software Engineer", "ML Infrastructure", "Data Engineering", "Python", "AWS", "Docker"],
+  title: "Madhur Dixit — Product Software Developer",
+  description:
+    "Portfolio of Madhur Dixit — Product Software Developer at Runara.ai. Specialises in ML infrastructure, LLM inference optimisation, GPU telemetry, and data engineering.",
+  keywords: [
+    "Software Engineer",
+    "ML Infrastructure",
+    "LLM Inference",
+    "Data Engineering",
+    "Python",
+    "AWS",
+    "Docker",
+    "Runara.ai",
+  ],
   authors: [{ name: "Madhur Dixit" }],
   openGraph: {
-    title: "Madhur Dixit - Software/Data Engineer",
-    description: "Portfolio showcasing expertise in ML Infrastructure, Data Engineering, and QA Automation",
+    title: "Madhur Dixit — Product Software Developer",
+    description:
+      "Portfolio showcasing ML infrastructure, GPU telemetry, LLM optimisation, and data engineering expertise.",
     type: "website",
   },
 };
@@ -32,11 +57,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      > 
-        <main className="min-h-screen bg-[--color-white-smoke] dark:bg-[--background]">
-          {children}
-        </main> 
+        className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} ${rajdhani.variable} antialiased`}
+      >
+        <main className="min-h-screen bg-[--background]">{children}</main>
+        <Analytics />
       </body>
     </html>
   );

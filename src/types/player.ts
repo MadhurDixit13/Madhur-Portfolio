@@ -5,6 +5,7 @@ export interface Experience {
   duration: string;
   achievements: string[];
   isCurrent: boolean;
+  legacy?: boolean;
   url?: string;
 }
 
