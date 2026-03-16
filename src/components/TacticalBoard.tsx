@@ -1337,10 +1337,38 @@ function ConceptDetail({ concept }: { concept: Concept }) {
   );
 }
 
+// ─── Shimmer skeleton ─────────────────────────────────────────────────────────
+function Skeleton({ className = '' }: { className?: string }) {
+  return (
+    <div className={`rounded-xl overflow-hidden relative ${className}`}
+      style={{ background: 'rgba(255,255,255,0.04)' }}>
+      <motion.div className="absolute inset-0"
+        animate={{ x: ['-100%', '200%'] }}
+        transition={{ duration: 1.4, repeat: Infinity, ease: 'linear', repeatDelay: 0.3 }}
+        style={{ background: 'linear-gradient(105deg, transparent 30%, rgba(251,191,36,0.08) 50%, transparent 70%)' }} />
+    </div>
+  );
+}
+
 // ─── TacticalBoard ────────────────────────────────────────────────────────────
 export default function TacticalBoard() {
   const [selected, setSelected] = useState<ConceptId>('kafka');
+  const [mounted, setMounted] = useState(false);
   const concept = CONCEPTS.find(c => c.id === selected)!;
+
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!mounted) {
+    return (
+      <div className="space-y-5">
+        <Skeleton className="h-16" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-32" />)}
+        </div>
+        <Skeleton className="h-48" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">

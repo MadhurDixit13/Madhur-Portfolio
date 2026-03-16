@@ -1,12 +1,12 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Trophy, Briefcase, Mail, Linkedin,
   Github, Phone, MapPin, ChevronDown, ChevronUp, ExternalLink, BookOpen, Zap
 } from 'lucide-react';
-import { PlayerData } from '@/types/player';
+import { PlayerData, Project, Experience } from '@/types/player';
 import TacticalBoard from './TacticalBoard';
 
 // ─── Animated counter ────────────────────────────────────────────────────────
@@ -31,15 +31,17 @@ function HoloCard({ data }: { data: PlayerData }) {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [glare, setGlare] = useState({ x: 50, y: 50 });
   const [hovered, setHovered] = useState(false);
+  const [flipped, setFlipped] = useState(false);
 
   const onMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (flipped) return;
     if (!cardRef.current) return;
     const r = cardRef.current.getBoundingClientRect();
     const nx = (e.clientX - r.left) / r.width;
     const ny = (e.clientY - r.top) / r.height;
     setTilt({ x: (ny - 0.5) * -22, y: (nx - 0.5) * 22 });
     setGlare({ x: nx * 100, y: ny * 100 });
-  }, []);
+  }, [flipped]);
 
   const onMouseLeave = useCallback(() => {
     setTilt({ x: 0, y: 0 });
@@ -61,19 +63,23 @@ function HoloCard({ data }: { data: PlayerData }) {
       onMouseMove={onMouseMove}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={onMouseLeave}
+      onTouchEnd={(e) => { e.preventDefault(); setFlipped(f => !f); }}
       className="relative select-none"
       style={{
         width: 'clamp(220px, 26vw, 300px)',
         aspectRatio: '2 / 2.9',
-        transform: `perspective(900px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-        transition: hovered ? 'transform 0.05s linear' : 'transform 0.6s cubic-bezier(.23,1,.32,1)',
+        transform: `perspective(900px) rotateX(${flipped ? 0 : tilt.x}deg) rotateY(${flipped ? 180 : tilt.y}deg)`,
+        transition: flipped
+          ? 'transform 0.65s cubic-bezier(.23,1,.32,1)'
+          : hovered ? 'transform 0.05s linear' : 'transform 0.6s cubic-bezier(.23,1,.32,1)',
         transformStyle: 'preserve-3d',
         borderRadius: '1.1rem',
         cursor: 'pointer',
         flexShrink: 0,
       }}
     >
-      {/* ── Gold card background ── */}
+      {/* ── Gold card background (front face) ── */}
+      <div className="absolute inset-0 rounded-[1.1rem] overflow-hidden" style={{ backfaceVisibility: 'hidden' }}>
       <div className="absolute inset-0 rounded-[1.1rem] overflow-hidden"
         style={{ background: 'linear-gradient(145deg, #f8c700 0%, #d4a017 30%, #b8860b 60%, #8b6914 100%)' }}>
         {/* Diagonal texture lines */}
@@ -157,42 +163,132 @@ function HoloCard({ data }: { data: PlayerData }) {
           </div>
         </div>
       </div>
+      </div>{/* end front face wrapper */}
+
+      {/* ── Card back face (mobile flip) ── */}
+      <div className="absolute inset-0 rounded-[1.1rem] overflow-hidden flex flex-col items-center justify-center gap-3 p-[8%]"
+        style={{
+          backfaceVisibility: 'hidden',
+          transform: 'rotateY(180deg)',
+          background: 'linear-gradient(145deg, #f8c700 0%, #d4a017 30%, #b8860b 60%, #8b6914 100%)',
+        }}>
+        <div className="absolute inset-0 opacity-20"
+          style={{ backgroundImage: 'repeating-linear-gradient(55deg,transparent,transparent 3px,rgba(255,255,255,0.08) 3px,rgba(255,255,255,0.08) 5px)' }} />
+        <div className="absolute inset-[5%] rounded-[0.8rem]"
+          style={{ background: 'linear-gradient(160deg, #1a1205 0%, #0d0a05 100%)' }} />
+        <div className="relative z-10 w-full space-y-3">
+          <div className="text-center mb-2">
+            <div className="font-black text-amber-300 tracking-widest text-xs" style={{ fontFamily: 'var(--font-anton)' }}>PLAYER STATS</div>
+          </div>
+          {statRows.map((s, i) => (
+            <div key={s.label} className="flex items-center gap-2">
+              <span className="text-amber-400/70 text-[9px] font-black w-8" style={{ fontFamily: 'var(--font-anton)' }}>{s.label}</span>
+              <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <motion.div className="h-full rounded-full"
+                  style={{ background: 'linear-gradient(90deg,#f59e0b,#fbbf24)' }}
+                  animate={flipped ? { width: `${s.value}%` } : { width: 0 }}
+                  transition={{ duration: 0.8, delay: i * 0.1, ease: 'easeOut' }} />
+              </div>
+              <span className="text-amber-100 font-black text-xs w-6 text-right" style={{ fontFamily: 'var(--font-anton)' }}>{s.value}</span>
+            </div>
+          ))}
+          <div className="text-center mt-3 text-amber-400/40 text-[8px]" style={{ fontFamily: 'var(--font-rajdhani)' }}>
+            tap to flip back
+          </div>
+        </div>
+      </div>
+
+      {/* Tap hint (mobile only) */}
+      <div className="absolute bottom-2 right-2 z-20 lg:hidden">
+        <div className="bg-black/50 rounded-full px-2 py-0.5 text-[7px] text-amber-400/60 font-black border border-amber-400/20"
+          style={{ fontFamily: 'var(--font-anton)' }}>TAP</div>
+      </div>
     </div>
   );
 }
 
-// ─── Stat bar with count-up ───────────────────────────────────────────────────
-function StatBar({ label, value }: { label: string; value: number }) {
-  const [animated, setAnimated] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+// ─── Radar Chart (replaces stat bars) ────────────────────────────────────────
+const RADAR_LABELS = ['TEC', 'SOL', 'INV', 'COM', 'LED'] as const;
+type RadarKey = 'technical' | 'problemSolving' | 'innovation' | 'communication' | 'leadership';
+const RADAR_KEYS: RadarKey[] = ['technical', 'problemSolving', 'innovation', 'communication', 'leadership'];
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { setAnimated(true); observer.disconnect(); }
-    }, { threshold: 0.3 });
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
+function RadarChart({ stats }: { stats: Record<RadarKey, number> & { overall: number } }) {
+  const ref = useRef<SVGSVGElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-20px' });
+  const CX = 72, CY = 72, R = 52, N = 5;
+
+  const vertex = (i: number, scale: number) => {
+    const a = (i * 2 * Math.PI / N) - Math.PI / 2;
+    return { x: CX + R * scale * Math.cos(a), y: CY + R * scale * Math.sin(a) };
+  };
+
+  const gridPoly = (scale: number) =>
+    Array.from({ length: N }, (_, i) => { const v = vertex(i, scale); return `${v.x},${v.y}`; }).join(' ');
+
+  const values = RADAR_KEYS.map(k => stats[k] / 100);
+  const dataPoints = values.map((v, i) => vertex(i, inView ? v : 0));
+  const dataPoly = dataPoints.map(p => `${p.x},${p.y}`).join(' ');
+  const labelPts = Array.from({ length: N }, (_, i) => {
+    const a = (i * 2 * Math.PI / N) - Math.PI / 2;
+    return { x: CX + (R + 16) * Math.cos(a), y: CY + (R + 16) * Math.sin(a), label: RADAR_LABELS[i], val: RADAR_KEYS[i] };
+  });
 
   return (
-    <div ref={ref} className="flex items-center justify-between gap-3">
-      <span className="text-amber-200/80 text-xs font-semibold capitalize w-28 shrink-0"
-        style={{ fontFamily: 'var(--font-rajdhani)' }}>
-        {label.replace(/([A-Z])/g, ' $1').trim()}
-      </span>
-      <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
-        <motion.div
-          className="h-full rounded-full"
-          style={{ background: 'linear-gradient(90deg, #f59e0b, #fbbf24)' }}
-          initial={{ width: 0 }}
-          animate={{ width: animated ? `${value}%` : 0 }}
-          transition={{ duration: 1.2, ease: 'easeOut', delay: 0.1 }}
+    <div className="flex flex-col items-center gap-2" style={{ width: 'clamp(220px, 26vw, 300px)' }}>
+      <svg ref={ref} viewBox="0 0 144 144" className="w-full max-w-[160px]">
+        {/* Grid rings */}
+        {[0.25, 0.5, 0.75, 1].map(s => (
+          <polygon key={s} points={gridPoly(s)} fill="none"
+            stroke="rgba(251,191,36,0.12)" strokeWidth={s === 1 ? 0.8 : 0.5} />
+        ))}
+        {/* Axis lines */}
+        {Array.from({ length: N }, (_, i) => {
+          const v = vertex(i, 1);
+          return <line key={i} x1={CX} y1={CY} x2={v.x} y2={v.y} stroke="rgba(251,191,36,0.1)" strokeWidth={0.5} />;
+        })}
+        {/* Data polygon */}
+        <motion.polygon
+          points={dataPoly}
+          fill="rgba(251,191,36,0.15)"
+          stroke="#fbbf24"
+          strokeWidth={1.5}
+          strokeLinejoin="round"
+          animate={{ points: dataPoly }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
         />
+        {/* Data dots */}
+        {dataPoints.map((p, i) => (
+          <motion.circle key={i} cx={p.x} cy={p.y} r={2.5} fill="#fbbf24"
+            initial={{ r: 0 }} animate={inView ? { r: 2.5 } : {}}
+            transition={{ duration: 0.5, delay: 0.8 + i * 0.07 }} />
+        ))}
+        {/* Labels */}
+        {labelPts.map((l, i) => (
+          <text key={i} x={l.x} y={l.y} textAnchor="middle" dominantBaseline="middle"
+            fill="rgba(251,191,36,0.65)" fontSize={7.5} fontWeight="700"
+            style={{ fontFamily: 'var(--font-anton)' }}>{l.label}</text>
+        ))}
+        {/* Overall in centre */}
+        <text x={CX} y={CY - 5} textAnchor="middle" dominantBaseline="middle"
+          fill="rgba(251,191,36,0.9)" fontSize={14} fontWeight="700"
+          style={{ fontFamily: 'var(--font-anton)' }}>{stats.overall}</text>
+        <text x={CX} y={CY + 9} textAnchor="middle" dominantBaseline="middle"
+          fill="rgba(251,191,36,0.4)" fontSize={6}
+          style={{ fontFamily: 'var(--font-anton)' }}>OVR</text>
+      </svg>
+      {/* Stat values row */}
+      <div className="flex justify-between w-full px-1">
+        {RADAR_KEYS.map((k, i) => (
+          <div key={k} className="text-center">
+            <div className="font-black text-amber-100 text-xs leading-none" style={{ fontFamily: 'var(--font-anton)' }}>
+              {inView ? <AnimatedCounter value={stats[k]} duration={1} /> : 0}
+            </div>
+            <div className="text-amber-400/50 text-[8px] mt-0.5" style={{ fontFamily: 'var(--font-anton)' }}>
+              {RADAR_LABELS[i]}
+            </div>
+          </div>
+        ))}
       </div>
-      <span className="text-white font-black text-sm w-7 text-right"
-        style={{ fontFamily: 'var(--font-anton)' }}>
-        {animated ? <AnimatedCounter value={value} /> : 0}
-      </span>
     </div>
   );
 }
@@ -212,14 +308,210 @@ const TABS: { id: TabId; label: string; short: string }[] = [
 ];
 
 // ─── Section card wrapper ─────────────────────────────────────────────────────
-function SectionCard({ children, className = '', style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
+function SectionCard({ children, className = '', style, delay = 0, onClick }: { children: React.ReactNode; className?: string; style?: React.CSSProperties; delay?: number; onClick?: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-40px' });
   return (
-    <div
-      className={`rounded-xl border border-white/8 bg-white/[0.03] p-4 sm:p-5 hover:border-amber-400/30 hover:bg-white/[0.05] transition-all duration-200 ${className}`}
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 18 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.35, ease: 'easeOut', delay }}
+      onClick={onClick}
+      className={`rounded-xl border border-white/8 bg-white/[0.03] p-4 sm:p-5 hover:border-amber-400/30 hover:bg-white/[0.05] transition-colors duration-200 ${className}`}
       style={style}
     >
       {children}
+    </motion.div>
+  );
+}
+
+// ─── Project Modal ────────────────────────────────────────────────────────────
+const PROJECT_METRICS: Record<string, string[]> = {
+  'Game Engine':           ['100+ concurrent clients', 'ZeroMQ client-server', '2 games, <8% code diff'],
+  'CarePulse Analytics':   ['10,000+ patient records', '150+ high-risk flagged', 'Bronze → Gold medallion'],
+  'Reddit SentimentFlow':  ['End-to-end Airflow DAG', 'Docker containerised', 'Automated moderation'],
+  'MiniSpark':             ['Pure Python + multiprocessing', 'Lazy transformations + DAG', 'Educational re-implementation'],
+  'Soccer Match Outcome Prediction': ['Ensemble ML methods', 'Historical feature engineering', 'Scikit-learn + Keras'],
+  'Game AI':               ['A* + Dijkstra pathfinding', 'Decision + behaviour trees', 'Python SFML'],
+  'Kafka Stock Market Analysis': ['Real-time CSV → Kafka stream', 'AWS S3 + Athena analytics', 'End-to-end pipeline'],
+  'Portfolio Website':     ['Next.js + Three.js + Framer', 'FIFA FUT card aesthetic', 'Deployed on Vercel'],
+  'Sales Data Analysis':   ['Power BI interactive dashboard', 'KPI tracking + slicers', 'Excel + DAX measures'],
+};
+
+function ProjectModal({ project, onClose }: { project: Project; onClose: () => void }) {
+  const metrics = PROJECT_METRICS[project.name] ?? [];
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <AnimatePresence>
+      <motion.div key="backdrop"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        onClick={onClose}
+        style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}>
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.9, opacity: 0 }} transition={{ duration: 0.25, ease: 'easeOut' }}
+          className="relative w-full max-w-lg rounded-2xl overflow-hidden"
+          style={{ background: 'linear-gradient(160deg,#1a1205 0%,#0d0a05 100%)', border: '1px solid rgba(251,191,36,0.3)' }}
+          onClick={e => e.stopPropagation()}>
+          {/* Gold top bar */}
+          <div className="h-1 w-full" style={{ background: 'linear-gradient(90deg,#f59e0b,#fbbf24,#f59e0b)' }} />
+          <div className="p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <div className="text-amber-400/60 text-[10px] font-black tracking-widest mb-1"
+                  style={{ fontFamily: 'var(--font-anton)' }}>{project.type.toUpperCase()} · {project.year}</div>
+                <h3 className="text-white font-black text-xl tracking-wide"
+                  style={{ fontFamily: 'var(--font-anton)' }}>{project.name}</h3>
+              </div>
+              <button onClick={onClose} className="text-amber-400/60 hover:text-amber-300 transition-colors text-lg leading-none">✕</button>
+            </div>
+
+            <p className="text-amber-100/80 text-sm leading-relaxed font-semibold mb-4"
+              style={{ fontFamily: 'var(--font-rajdhani)' }}>{project.description}</p>
+
+            {metrics.length > 0 && (
+              <div className="mb-4">
+                <div className="text-amber-400/70 text-[10px] font-black tracking-widest mb-2"
+                  style={{ fontFamily: 'var(--font-anton)' }}>KEY METRICS</div>
+                <div className="space-y-1.5">
+                  {metrics.map((m, i) => (
+                    <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 + i * 0.06 }}
+                      className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+                      <span className="text-amber-100/70 text-xs font-semibold"
+                        style={{ fontFamily: 'var(--font-rajdhani)' }}>{m}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="mb-5">
+              <div className="text-amber-400/70 text-[10px] font-black tracking-widest mb-2"
+                style={{ fontFamily: 'var(--font-anton)' }}>TECH STACK</div>
+              <div className="flex flex-wrap gap-1.5">
+                {project.technologies.map((t, i) => (
+                  <span key={i} className="bg-amber-400/10 text-amber-200/80 px-2.5 py-1 rounded-full text-xs border border-amber-400/20 font-semibold"
+                    style={{ fontFamily: 'var(--font-rajdhani)' }}>{t}</span>
+                ))}
+              </div>
+            </div>
+
+            {project.url && (
+              <a href={project.url} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 text-xs font-black px-4 py-2 rounded-xl border border-amber-400/25 transition-colors"
+                style={{ fontFamily: 'var(--font-anton)' }}>
+                <ExternalLink className="w-3 h-3" /> VIEW ON GITHUB
+              </a>
+            )}
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+// ─── Career Timeline ──────────────────────────────────────────────────────────
+function CareerTimeline({ experiences }: { experiences: Experience[] }) {
+  const primary = experiences.filter(e => !e.legacy);
+  return (
+    <div className="mt-4">
+      <div className="text-[10px] font-black tracking-widest text-amber-400/60 mb-3"
+        style={{ fontFamily: 'var(--font-anton)' }}>CAREER TIMELINE</div>
+      <div className="overflow-x-auto no-scrollbar pb-2">
+        <div className="flex gap-0 min-w-max relative">
+          {/* Connector line */}
+          <div className="absolute top-[28px] left-8 right-8 h-px bg-amber-400/20" />
+          {primary.map((exp, i) => (
+            <div key={i} className="flex flex-col items-center relative" style={{ minWidth: 100, maxWidth: 120 }}>
+              {/* Node */}
+              <div className="relative z-10 w-14 h-14 rounded-xl border-2 flex items-center justify-center mb-2 overflow-hidden"
+                style={{ borderColor: exp.isCurrent ? '#fbbf24' : 'rgba(255,255,255,0.12)', background: exp.isCurrent ? 'rgba(251,191,36,0.1)' : 'rgba(255,255,255,0.03)' }}>
+                {exp.logoImage
+                  ? <img src={exp.logoImage} alt={exp.name} className="w-10 h-10 rounded-lg object-cover" />
+                  : <span className="text-2xl">{exp.logo}</span>}
+                {exp.isCurrent && <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-amber-400 rounded-bl-lg" />}
+              </div>
+              {/* Label */}
+              <div className="text-center px-1">
+                <div className="text-[9px] font-black text-white/70 leading-tight truncate w-full"
+                  style={{ fontFamily: 'var(--font-anton)', maxWidth: 96 }}>{exp.name}</div>
+                <div className="text-[8px] text-amber-400/50 mt-0.5 leading-tight">{exp.duration.split(' - ')[0]}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
+  );
+}
+
+// ─── Sign Me CTA ─────────────────────────────────────────────────────────────
+function SignMeCard({ email, linkedin }: { email: string; linkedin: string }) {
+  const [signed, setSigned] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleSign = async () => {
+    setSigned(true);
+    try {
+      await navigator.clipboard.writeText(email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch { /* clipboard blocked */ }
+  };
+
+  return (
+    <SectionCard className="border border-amber-400/30 bg-amber-400/5">
+      <div className="flex flex-col sm:flex-row items-center gap-4">
+        <div className="flex-1">
+          <h4 className="text-sm font-black tracking-widest text-amber-300 mb-1 flex items-center gap-2"
+            style={{ fontFamily: 'var(--font-anton)' }}>
+            ✍ SIGN ME
+          </h4>
+          <p className="text-amber-100/70 text-xs font-semibold" style={{ fontFamily: 'var(--font-rajdhani)' }}>
+            Open to new roles — drop me a message or connect on LinkedIn.
+          </p>
+          <AnimatePresence>
+            {signed && (
+              <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                className="mt-2 font-black text-amber-400 tracking-widest overflow-hidden"
+                style={{ fontFamily: 'var(--font-anton)', fontSize: 13, fontStyle: 'italic' }}>
+                {['M','a','d','h','u','r',' ','D','i','x','i','t'].map((ch, i) => (
+                  <motion.span key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.06, ease: 'easeOut' }}>{ch}</motion.span>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+          {copied && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="text-emerald-400 text-xs mt-1 font-semibold" style={{ fontFamily: 'var(--font-rajdhani)' }}>
+              Email copied to clipboard
+            </motion.div>
+          )}
+        </div>
+        <div className="flex gap-2 shrink-0">
+          <motion.button onClick={handleSign} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+            className="font-black text-black px-4 py-2 rounded-xl text-xs tracking-widest border border-amber-300/70"
+            style={{ fontFamily: 'var(--font-anton)', background: 'linear-gradient(135deg,#fbbf24,#f59e0b)' }}>
+            {signed ? 'SIGNED ✓' : 'SIGN ME'}
+          </motion.button>
+          <a href={`https://${linkedin}`} target="_blank" rel="noopener noreferrer"
+            className="font-black text-amber-300 px-3 py-2 rounded-xl text-xs tracking-widest border border-amber-400/30 hover:bg-amber-400/10 transition-colors flex items-center gap-1"
+            style={{ fontFamily: 'var(--font-anton)' }}>
+            <Linkedin className="w-3 h-3" /> IN
+          </a>
+        </div>
+      </div>
+    </SectionCard>
   );
 }
 
@@ -227,15 +519,35 @@ function SectionCard({ children, className = '', style }: { children: React.Reac
 interface FIFAPlayerCardProps { data: PlayerData }
 
 export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
-  const [activeTab, setActiveTab] = useState<TabId>('info');
+  const getInitialTab = (): TabId => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.replace('#', '') as TabId;
+      if (TABS.some(t => t.id === hash)) return hash;
+    }
+    return 'info';
+  };
+
+  const [activeTab, setActiveTab] = useState<TabId>(getInitialTab);
   const [prevTab, setPrevTab] = useState<TabId>('info');
   const [showLegacy, setShowLegacy] = useState(false);
+  const [modalProject, setModalProject] = useState<Project | null>(null);
   const tabOrder = TABS.map(t => t.id);
 
   const switchTab = (id: TabId) => {
     setPrevTab(activeTab);
     setActiveTab(id);
+    if (typeof window !== 'undefined') window.location.hash = id;
   };
+
+  // Sync hash → tab on popstate (browser back/forward)
+  useEffect(() => {
+    const onHash = () => {
+      const hash = window.location.hash.replace('#', '') as TabId;
+      if (TABS.some(t => t.id === hash)) { setPrevTab(activeTab); setActiveTab(hash); }
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const direction = tabOrder.indexOf(activeTab) > tabOrder.indexOf(prevTab) ? 1 : -1;
 
@@ -244,6 +556,8 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
 
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ background: '#020408' }}>
+      {/* Project modal */}
+      {modalProject && <ProjectModal project={modalProject} onClose={() => setModalProject(null)} />}
 
       {/* ── Stadium background ── */}
       <div className="absolute inset-0 pointer-events-none">
@@ -279,12 +593,8 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
         <div className="flex flex-col items-center gap-5 lg:sticky lg:top-10 flex-shrink-0">
           <HoloCard data={data} />
 
-          {/* Stats below card */}
-          <div className="w-full space-y-2.5" style={{ width: 'clamp(220px, 26vw, 300px)' }}>
-            {Object.entries(data.stats)
-              .filter(([k]) => k !== 'overall')
-              .map(([k, v]) => <StatBar key={k} label={k} value={v} />)}
-          </div>
+          {/* Radar chart below card */}
+          <RadarChart stats={data.stats} />
         </div>
 
         {/* ── Right: Detail panel ── */}
@@ -393,6 +703,9 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                         ))}
                       </div>
                     </SectionCard>
+
+                    {/* Sign Me CTA */}
+                    <SignMeCard email={data.contact.email} linkedin={data.contact.linkedin} />
                   </div>
                 )}
 
@@ -473,6 +786,9 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                         </AnimatePresence>
                       </div>
                     )}
+
+                    {/* Career Timeline */}
+                    <CareerTimeline experiences={data.experiences} />
                   </div>
                 )}
 
@@ -562,8 +878,9 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {typed.map((proj, pi) => (
                               <SectionCard key={pi}
-                                className={`border-l-[3px]`}
-                                style={{ borderLeftColor: borderColors[type] } as React.CSSProperties}>
+                                className="border-l-[3px] cursor-pointer"
+                                style={{ borderLeftColor: borderColors[type] } as React.CSSProperties}
+                                onClick={() => setModalProject(proj)}>
                                 <div className="flex items-start justify-between gap-2 mb-2">
                                   <h5 className="text-white font-black text-sm leading-tight"
                                     style={{ fontFamily: 'var(--font-rajdhani)' }}>
