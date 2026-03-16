@@ -353,28 +353,13 @@ export const playerData: PlayerData = {
 
   testimonials: [
     {
-      name: "Dr. Sarah Chen",
-      title: "Research Advisor",
-      company: "NC State University",
-      relation: "RESEARCH ADVISOR",
-      quote: "Madhur brings a rare combination of deep technical rigour and creative problem-solving. His published research on LLM impacts in education reflects the same analytical precision he applies to every engineering challenge. I'd sign him to any team immediately.",
-      rating: 96,
-    },
-    {
-      name: "Alex Rivera",
-      title: "Engineering Lead",
-      company: "AllyIn.ai",
-      relation: "DIRECT MANAGER",
-      quote: "In six months, Madhur architected our entire GPU telemetry stack from scratch — DCGM, Prometheus, TimescaleDB, the works. He identified a 4x throughput gain by reading CUDA occupancy numbers most engineers ignore. He plays at a different level.",
-      rating: 94,
-    },
-    {
-      name: "Jordan Patel",
-      title: "Staff Data Engineer",
-      company: "Heartland Community Network",
-      relation: "TECH LEAD",
-      quote: "Madhur delivered a LangChain hybrid-search agent that improved accuracy by 25% in under two weeks. He didn't just write the code — he understood the user problem, challenged assumptions, and shipped. That mindset is rare.",
-      rating: 92,
+      name: "Omkar Sawant",
+      title: "Staff Engineer — EIT Funding Dev",
+      company: "StoneX Group Inc.",
+      relation: "COLLEAGUE",
+      quote: "I had the pleasure of working with Madhur in the same team at Perch Furniture and Digiliyo Technologies. He is highly skilled in React.js, creating dynamic and user-friendly interfaces with clean, efficient code. On the backend, his expertise in Node.js, MongoDB, and RESTful APIs enables him to build scalable and high-performance applications with seamless data flow. Beyond his technical skills, Madhur is a great team player, always ready to share knowledge, mentor others, and collaborate effectively. His technical proficiency, problem-solving mindset, and dedication make him a valuable asset to any team. I highly recommend Madhur for any role requiring a talented full-stack developer.",
+      rating: 95,
+      linkedinUrl: "https://www.linkedin.com/in/madixit/details/recommendations/",
     },
   ],
 

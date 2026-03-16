@@ -78,6 +78,7 @@ export interface Testimonial {
   quote: string;
   rating: number;
   avatar?: string;
+  linkedinUrl?: string;
 }
 
 export interface PlayerData {

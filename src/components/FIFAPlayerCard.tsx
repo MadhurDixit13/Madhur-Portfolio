@@ -1457,10 +1457,18 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                 {/* ── SCOUTS ── */}
                 {activeTab === 'scouts' && (
                   <div className="space-y-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-amber-400 text-lg">⚡</span>
-                      <h3 className="text-white font-black tracking-widest text-base"
-                        style={{ fontFamily: 'var(--font-anton)' }}>SCOUT REPORTS</h3>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-amber-400 text-lg">⚡</span>
+                        <h3 className="text-white font-black tracking-widest text-base"
+                          style={{ fontFamily: 'var(--font-anton)' }}>SCOUT REPORTS</h3>
+                      </div>
+                      <a href="https://www.linkedin.com/in/madixit/details/recommendations/"
+                        target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-[10px] font-black tracking-widest text-sky-400/70 hover:text-sky-300 border border-sky-400/20 hover:border-sky-400/40 rounded-lg px-2.5 py-1 transition-colors"
+                        style={{ fontFamily: 'var(--font-anton)' }}>
+                        <Linkedin className="w-3 h-3" /> VIEW ALL ON LINKEDIN
+                      </a>
                     </div>
                     {(data.testimonials ?? []).map((t: Testimonial, i: number) => {
                       const borderColor = t.relation === 'DIRECT MANAGER'
@@ -1498,24 +1506,33 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                             </p>
 
                             {/* Attribution */}
-                            <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 border border-amber-400/30"
-                                style={{ background: 'rgba(251,191,36,0.1)' }}>
-                                <span className="text-amber-300 font-black text-xs" style={{ fontFamily: 'var(--font-anton)' }}>
-                                  {t.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
-                                </span>
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 border border-amber-400/30"
+                                  style={{ background: 'rgba(251,191,36,0.1)' }}>
+                                  <span className="text-amber-300 font-black text-xs" style={{ fontFamily: 'var(--font-anton)' }}>
+                                    {t.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
+                                  </span>
+                                </div>
+                                <div>
+                                  <div className="text-white font-black text-sm" style={{ fontFamily: 'var(--font-rajdhani)' }}>{t.name}</div>
+                                  <div className="text-amber-400/60 text-xs">{t.title} · {t.company}</div>
+                                </div>
                               </div>
-                              <div>
-                                <div className="text-white font-black text-sm" style={{ fontFamily: 'var(--font-rajdhani)' }}>{t.name}</div>
-                                <div className="text-amber-400/60 text-xs">{t.title} · {t.company}</div>
-                              </div>
+                              {t.linkedinUrl && (
+                                <a href={t.linkedinUrl} target="_blank" rel="noopener noreferrer"
+                                  className="shrink-0 flex items-center gap-1 text-[9px] font-black text-sky-400/60 hover:text-sky-300 border border-sky-400/15 hover:border-sky-400/35 rounded px-2 py-1 transition-colors"
+                                  style={{ fontFamily: 'var(--font-anton)' }}>
+                                  <Linkedin className="w-3 h-3" /> VERIFY
+                                </a>
+                              )}
                             </div>
                           </SectionCard>
                         </motion.div>
                       );
                     })}
                     <p className="text-amber-400/30 text-[10px] text-center pt-1" style={{ fontFamily: 'var(--font-rajdhani)' }}>
-                      Scout reports are from colleagues, managers, and advisors — names used with permission.
+                      Only real recommendations — verified on LinkedIn. No fabricated quotes.
                     </p>
                   </div>
                 )}
