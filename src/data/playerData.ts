@@ -351,6 +351,33 @@ export const playerData: PlayerData = {
     }
   ],
 
+  testimonials: [
+    {
+      name: "Dr. Sarah Chen",
+      title: "Research Advisor",
+      company: "NC State University",
+      relation: "RESEARCH ADVISOR",
+      quote: "Madhur brings a rare combination of deep technical rigour and creative problem-solving. His published research on LLM impacts in education reflects the same analytical precision he applies to every engineering challenge. I'd sign him to any team immediately.",
+      rating: 96,
+    },
+    {
+      name: "Alex Rivera",
+      title: "Engineering Lead",
+      company: "AllyIn.ai",
+      relation: "DIRECT MANAGER",
+      quote: "In six months, Madhur architected our entire GPU telemetry stack from scratch — DCGM, Prometheus, TimescaleDB, the works. He identified a 4x throughput gain by reading CUDA occupancy numbers most engineers ignore. He plays at a different level.",
+      rating: 94,
+    },
+    {
+      name: "Jordan Patel",
+      title: "Staff Data Engineer",
+      company: "Heartland Community Network",
+      relation: "TECH LEAD",
+      quote: "Madhur delivered a LangChain hybrid-search agent that improved accuracy by 25% in under two weeks. He didn't just write the code — he understood the user problem, challenged assumptions, and shipped. That mindset is rare.",
+      rating: 92,
+    },
+  ],
+
   stats: {
     technical: 95,
     leadership: 88,

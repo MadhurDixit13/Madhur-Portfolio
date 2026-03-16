@@ -4,9 +4,10 @@ import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Trophy, Briefcase, Mail, Linkedin,
-  Github, Phone, MapPin, ChevronDown, ChevronUp, ExternalLink, BookOpen, Zap
+  Github, Phone, MapPin, ChevronDown, ChevronUp, ExternalLink, BookOpen, Zap,
+  Info, FolderOpen, Star
 } from 'lucide-react';
-import { PlayerData, Project, Experience, Blog } from '@/types/player';
+import { PlayerData, Project, Experience, Blog, Skill, Testimonial } from '@/types/player';
 import TacticalBoard from './TacticalBoard';
 import { track } from '@vercel/analytics';
 
@@ -295,7 +296,7 @@ function RadarChart({ stats }: { stats: Record<RadarKey, number> & { overall: nu
 }
 
 // ─── Tab types ────────────────────────────────────────────────────────────────
-type TabId = 'info' | 'experience' | 'education' | 'skills' | 'projects' | 'research' | 'blogs' | 'playbook';
+type TabId = 'info' | 'experience' | 'education' | 'skills' | 'projects' | 'research' | 'blogs' | 'scouts' | 'playbook';
 
 const TABS: { id: TabId; label: string; short: string }[] = [
   { id: 'info',       label: 'INFO',       short: 'INFO' },
@@ -305,6 +306,7 @@ const TABS: { id: TabId; label: string; short: string }[] = [
   { id: 'projects',   label: 'PROJECTS',   short: 'PRJ'  },
   { id: 'research',   label: 'RESEARCH',   short: 'RES'  },
   { id: 'blogs',      label: 'BLOGS',      short: 'BLG'  },
+  { id: 'scouts',     label: 'SCOUTS',     short: 'SCT'  },
   { id: 'playbook',   label: 'PLAYBOOK',   short: 'PLAY' },
 ];
 
@@ -455,22 +457,138 @@ function CareerTimeline({ experiences }: { experiences: Experience[] }) {
   );
 }
 
-// ─── Sign Me CTA ─────────────────────────────────────────────────────────────
-function SignMeCard({ email, linkedin }: { email: string; linkedin: string }) {
-  const [signed, setSigned] = useState(false);
+// ─── Contact Modal ────────────────────────────────────────────────────────────
+function ContactModal({ email, onClose }: { email: string; onClose: () => void }) {
+  const [name, setName] = useState('');
+  const [company, setCompany] = useState('');
+  const [role, setRole] = useState('');
+  const [message, setMessage] = useState('');
+  const [sent, setSent] = useState(false);
+  const [showSig, setShowSig] = useState(false);
 
-  const handleSign = () => {
-    setSigned(true);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  const handleSend = () => {
     track('sign_me_click');
-    const subject = encodeURIComponent("We Want to Sign You — Let's Begin Talks ⚽");
+    const subject = encodeURIComponent(`We Want to Sign You — Let's Begin Talks ⚽ | ${name} from ${company}`);
     const body = encodeURIComponent(
-      `Hi Madhur,\n\nWe came across your portfolio and we're impressed by your work. We'd love to discuss an opportunity with you.\n\nLooking forward to connecting!\n`
+      `Hi Madhur,\n\nName: ${name}\nCompany: ${company}\nRole: ${role}\n\n${message}\n\nLooking forward to connecting!\n`
     );
     const a = document.createElement('a');
     a.href = `mailto:${email}?subject=${subject}&body=${body}`;
     a.click();
+    setShowSig(true);
+    setSent(true);
+    setTimeout(() => onClose(), 2000);
   };
 
+  const inputClass = "w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-amber-100/90 text-sm placeholder-white/20 focus:outline-none focus:border-amber-400/50 transition-colors";
+
+  return (
+    <AnimatePresence>
+      <motion.div key="contact-backdrop"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        onClick={onClose}
+        style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}>
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.9, opacity: 0 }} transition={{ duration: 0.25, ease: 'easeOut' }}
+          className="relative w-full max-w-lg rounded-2xl overflow-hidden"
+          style={{ background: 'linear-gradient(160deg,#1a1205 0%,#0d0a05 100%)', border: '1px solid rgba(251,191,36,0.3)' }}
+          onClick={e => e.stopPropagation()}>
+          {/* Gold top bar */}
+          <div className="h-1 w-full" style={{ background: 'linear-gradient(90deg,#f59e0b,#fbbf24,#f59e0b)' }} />
+          <div className="p-6">
+            <div className="flex items-start justify-between mb-5">
+              <div>
+                <div className="text-amber-400/60 text-[10px] font-black tracking-widest mb-1"
+                  style={{ fontFamily: 'var(--font-anton)' }}>CONTRACT NEGOTIATION</div>
+                <h3 className="text-white font-black text-xl tracking-wide"
+                  style={{ fontFamily: 'var(--font-anton)' }}>APPROACH THE AGENT</h3>
+              </div>
+              <button onClick={onClose} className="text-amber-400/60 hover:text-amber-300 transition-colors text-lg leading-none">✕</button>
+            </div>
+
+            {sent ? (
+              <div className="py-6 text-center space-y-3">
+                <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+                  className="text-4xl">✉</motion.div>
+                <p className="text-emerald-400 font-semibold text-sm" style={{ fontFamily: 'var(--font-rajdhani)' }}>
+                  Mail client opened! Check your outbox.
+                </p>
+                <AnimatePresence>
+                  {showSig && (
+                    <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+                      className="font-black text-amber-400 tracking-widest overflow-hidden"
+                      style={{ fontFamily: 'var(--font-anton)', fontSize: 15, fontStyle: 'italic' }}>
+                      {['M','a','d','h','u','r',' ','D','i','x','i','t'].map((ch, i) => (
+                        <motion.span key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.06, ease: 'easeOut' }}>{ch}</motion.span>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-amber-400/60 text-[10px] font-black tracking-widest mb-1 block"
+                      style={{ fontFamily: 'var(--font-anton)' }}>YOUR NAME</label>
+                    <input type="text" value={name} onChange={e => setName(e.target.value)}
+                      placeholder="Jane Smith" className={inputClass}
+                      style={{ fontFamily: 'var(--font-rajdhani)' }} />
+                  </div>
+                  <div>
+                    <label className="text-amber-400/60 text-[10px] font-black tracking-widest mb-1 block"
+                      style={{ fontFamily: 'var(--font-anton)' }}>COMPANY</label>
+                    <input type="text" value={company} onChange={e => setCompany(e.target.value)}
+                      placeholder="Acme Corp" className={inputClass}
+                      style={{ fontFamily: 'var(--font-rajdhani)' }} />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-amber-400/60 text-[10px] font-black tracking-widest mb-1 block"
+                    style={{ fontFamily: 'var(--font-anton)' }}>ROLE / OPPORTUNITY</label>
+                  <input type="text" value={role} onChange={e => setRole(e.target.value)}
+                    placeholder="Senior Software Engineer" className={inputClass}
+                    style={{ fontFamily: 'var(--font-rajdhani)' }} />
+                </div>
+                <div>
+                  <label className="text-amber-400/60 text-[10px] font-black tracking-widest mb-1 block"
+                    style={{ fontFamily: 'var(--font-anton)' }}>MESSAGE</label>
+                  <textarea rows={4} value={message} onChange={e => setMessage(e.target.value)}
+                    placeholder="Tell me about the opportunity..." className={`${inputClass} resize-none`}
+                    style={{ fontFamily: 'var(--font-rajdhani)' }} />
+                </div>
+                <div className="flex items-center gap-3 pt-1">
+                  <motion.button onClick={handleSend}
+                    disabled={!name.trim() || !company.trim()}
+                    whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+                    className="font-black text-black px-5 py-2.5 rounded-xl text-sm tracking-widest border border-amber-300/70 disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{ fontFamily: 'var(--font-anton)', background: 'linear-gradient(135deg,#fbbf24,#f59e0b)' }}>
+                    ✍ SIGN ME
+                  </motion.button>
+                  <p className="text-amber-400/40 text-xs" style={{ fontFamily: 'var(--font-rajdhani)' }}>
+                    Opens your email client
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+// ─── Sign Me button (trigger for ContactModal) ────────────────────────────────
+function SignMeCard({ linkedin, onOpenModal }: { linkedin: string; onOpenModal: () => void }) {
   return (
     <SectionCard className="border border-amber-400/30 bg-amber-400/5">
       <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -482,30 +600,12 @@ function SignMeCard({ email, linkedin }: { email: string; linkedin: string }) {
           <p className="text-amber-100/70 text-xs font-semibold" style={{ fontFamily: 'var(--font-rajdhani)' }}>
             Open to new roles — drop me a message or connect on LinkedIn.
           </p>
-          <AnimatePresence>
-            {signed && (
-              <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                className="mt-2 font-black text-amber-400 tracking-widest overflow-hidden"
-                style={{ fontFamily: 'var(--font-anton)', fontSize: 13, fontStyle: 'italic' }}>
-                {['M','a','d','h','u','r',' ','D','i','x','i','t'].map((ch, i) => (
-                  <motion.span key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.06, ease: 'easeOut' }}>{ch}</motion.span>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-          {signed && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="text-emerald-400 text-xs mt-1 font-semibold" style={{ fontFamily: 'var(--font-rajdhani)' }}>
-              Opening your email client...
-            </motion.div>
-          )}
         </div>
         <div className="flex gap-2 shrink-0">
-          <motion.button onClick={handleSign} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+          <motion.button onClick={onOpenModal} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
             className="font-black text-black px-4 py-2 rounded-xl text-xs tracking-widest border border-amber-300/70"
             style={{ fontFamily: 'var(--font-anton)', background: 'linear-gradient(135deg,#fbbf24,#f59e0b)' }}>
-            {signed ? 'DRAFTED ✓' : 'SIGN ME'}
+            SIGN ME
           </motion.button>
           <a href={`https://${linkedin}`} target="_blank" rel="noopener noreferrer"
             className="font-black text-amber-300 px-3 py-2 rounded-xl text-xs tracking-widest border border-amber-400/30 hover:bg-amber-400/10 transition-colors flex items-center gap-1"
@@ -515,6 +615,158 @@ function SignMeCard({ email, linkedin }: { email: string; linkedin: string }) {
         </div>
       </div>
     </SectionCard>
+  );
+}
+
+// ─── Now Playing Widget ────────────────────────────────────────────────────────
+function NowPlayingWidget({ experiences }: { experiences: Experience[] }) {
+  const current = experiences.find(e => e.isCurrent);
+  if (!current) return null;
+
+  const barHeights = [0.4, 0.9, 0.6, 1.0, 0.7];
+
+  return (
+    <SectionCard className="border-l-[3px] border-l-emerald-500 bg-black/20">
+      <div className="flex items-center gap-3">
+        {/* Equalizer bars */}
+        <div className="flex items-end gap-[3px] h-8 shrink-0">
+          {barHeights.map((h, i) => (
+            <motion.div
+              key={i}
+              className="w-1 rounded-sm"
+              style={{ background: '#1db954', height: `${h * 100}%` }}
+              animate={{ scaleY: [h, h * 0.4, h * 1.1, h * 0.6, h] }}
+              transition={{
+                duration: 0.8 + i * 0.15,
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay: i * 0.1,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Text */}
+        <div className="flex-1 min-w-0">
+          <div className="text-[9px] font-black tracking-widest text-amber-400 mb-0.5"
+            style={{ fontFamily: 'var(--font-anton)' }}>NOW PLAYING</div>
+          <div className="text-white font-black text-sm truncate leading-tight"
+            style={{ fontFamily: 'var(--font-rajdhani)' }}>{current.name}</div>
+          <div className="text-amber-300 text-xs font-semibold truncate"
+            style={{ fontFamily: 'var(--font-rajdhani)' }}>{current.position}</div>
+          <div className="text-amber-400/50 text-[10px] mt-0.5">{current.duration}</div>
+        </div>
+
+        {/* LIVE badge */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <motion.div className="w-2 h-2 rounded-full bg-amber-400"
+            animate={{ opacity: [1, 0.3, 1] }}
+            transition={{ duration: 1.2, repeat: Infinity }} />
+          <span className="text-amber-400 text-[10px] font-black tracking-widest"
+            style={{ fontFamily: 'var(--font-anton)' }}>LIVE</span>
+        </div>
+      </div>
+    </SectionCard>
+  );
+}
+
+// ─── Skill Web Chart ──────────────────────────────────────────────────────────
+function SkillWebChart({ skills }: { skills: Skill[] }) {
+  const [expandedCat, setExpandedCat] = useState<string | null>(null);
+  const CX = 250, CY = 200, CAT_R = 140, SKILL_R = 70;
+  const N = skills.length;
+
+  const catPos = (i: number) => {
+    const a = (i / N) * 2 * Math.PI - Math.PI / 2;
+    return { x: CX + CAT_R * Math.cos(a), y: CY + CAT_R * Math.sin(a) };
+  };
+
+  const catColors = ['#fbbf24', '#60a5fa', '#34d399', '#a78bfa', '#fb923c', '#f472b6'];
+
+  return (
+    <div className="w-full overflow-x-auto">
+      <svg viewBox="0 0 500 400" className="w-full max-w-2xl mx-auto" style={{ minHeight: 260 }}>
+        {/* Lines from center to categories */}
+        {skills.map((cat, i) => {
+          const pos = catPos(i);
+          return (
+            <line key={`line-${i}`} x1={CX} y1={CY} x2={pos.x} y2={pos.y}
+              stroke={`${catColors[i % catColors.length]}30`} strokeWidth={1.5} />
+          );
+        })}
+
+        {/* Satellite skill nodes when a category is expanded */}
+        {expandedCat !== null && (() => {
+          const catIdx = skills.findIndex(s => s.category === expandedCat);
+          if (catIdx === -1) return null;
+          const cp = catPos(catIdx);
+          const cat = skills[catIdx];
+          return cat.skills.map((sk, si) => {
+            const a = (si / cat.skills.length) * 2 * Math.PI - Math.PI / 2;
+            const sx = cp.x + SKILL_R * Math.cos(a);
+            const sy = cp.y + SKILL_R * Math.sin(a);
+            const color = catColors[catIdx % catColors.length];
+            return (
+              <g key={`skill-${si}`}>
+                <line x1={cp.x} y1={cp.y} x2={sx} y2={sy}
+                  stroke={`${color}25`} strokeWidth={1} />
+                <motion.circle cx={sx} cy={sy} r={18}
+                  fill={`${color}15`} stroke={`${color}40`} strokeWidth={1}
+                  initial={{ scale: 0 }} animate={{ scale: 1 }}
+                  transition={{ delay: si * 0.05, duration: 0.25 }} />
+                <foreignObject x={sx - 18} y={sy - 8} width={36} height={16}>
+                  <div style={{ fontSize: 6, textAlign: 'center', color, fontFamily: 'var(--font-anton)', fontWeight: 700, lineHeight: 1.1, wordBreak: 'break-word' }}>
+                    {sk.length > 8 ? sk.slice(0, 8) + '…' : sk}
+                  </div>
+                </foreignObject>
+              </g>
+            );
+          });
+        })()}
+
+        {/* Category nodes */}
+        {skills.map((cat, i) => {
+          const pos = catPos(i);
+          const color = catColors[i % catColors.length];
+          const isActive = expandedCat === cat.category;
+          return (
+            <g key={`cat-${i}`} onClick={() => setExpandedCat(isActive ? null : cat.category)}
+              style={{ cursor: 'pointer' }}>
+              <motion.circle cx={pos.x} cy={pos.y} r={28}
+                fill={isActive ? `${color}25` : `${color}12`}
+                stroke={isActive ? color : `${color}50`}
+                strokeWidth={isActive ? 2 : 1}
+                initial={{ scale: 0 }} animate={{ scale: 1 }}
+                transition={{ delay: i * 0.08, duration: 0.3 }}
+                whileHover={{ scale: 1.12 }}
+              />
+              <text x={pos.x} y={pos.y - 4} textAnchor="middle" dominantBaseline="middle"
+                fontSize={7} fontWeight="700"
+                style={{ fontFamily: 'var(--font-anton)', fill: isActive ? color : `${color}cc`, pointerEvents: 'none' }}>
+                {cat.category.split(' ')[0].toUpperCase().slice(0, 7)}
+              </text>
+              <text x={pos.x} y={pos.y + 5} textAnchor="middle" dominantBaseline="middle"
+                fontSize={6}
+                style={{ fill: `${color}80`, pointerEvents: 'none', fontFamily: 'var(--font-rajdhani)' }}>
+                {cat.skills.length} skills
+              </text>
+            </g>
+          );
+        })}
+
+        {/* Center node */}
+        <circle cx={CX} cy={CY} r={32}
+          fill="rgba(251,191,36,0.1)" stroke="rgba(251,191,36,0.5)" strokeWidth={1.5} />
+        <text x={CX} y={CY - 4} textAnchor="middle" dominantBaseline="middle"
+          fontSize={9} fontWeight="700"
+          style={{ fontFamily: 'var(--font-anton)', fill: '#fbbf24' }}>MADHUR</text>
+        <text x={CX} y={CY + 8} textAnchor="middle" dominantBaseline="middle"
+          fontSize={6}
+          style={{ fill: 'rgba(251,191,36,0.5)', fontFamily: 'var(--font-rajdhani)' }}>
+          {expandedCat ? 'click node' : 'click category'}
+        </text>
+      </svg>
+    </div>
   );
 }
 
@@ -581,12 +833,26 @@ type ReactionKey = typeof REACTIONS[number]['key'];
 function ReactionsBar() {
   const [reacted, setReacted] = useState<ReactionKey | null>(null);
   const [burst, setBurst] = useState<ReactionKey | null>(null);
+  const [counts, setCounts] = useState<Record<ReactionKey, number> | null>(null);
+  const [kvAvailable, setKvAvailable] = useState(false);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem('portfolio_reaction');
       if (stored) setReacted(stored as ReactionKey);
     } catch { /* SSR */ }
+
+    // Fetch KV counts
+    fetch('/api/reactions')
+      .then(r => r.json())
+      .then((d: { counts: Record<ReactionKey, number> }) => {
+        const hasAny = Object.values(d.counts).some(v => v > 0);
+        if (hasAny || process.env.NODE_ENV !== 'production') {
+          setCounts(d.counts);
+          setKvAvailable(true);
+        }
+      })
+      .catch(() => { /* fallback: no counts shown */ });
   }, []);
 
   const react = (key: ReactionKey) => {
@@ -596,6 +862,19 @@ function ReactionsBar() {
     setTimeout(() => setBurst(null), 600);
     try { localStorage.setItem('portfolio_reaction', key); } catch { /* */ }
     track('reaction', { type: key });
+
+    // POST to KV
+    fetch('/api/reactions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key }),
+    })
+      .then(r => r.json())
+      .then((d: { counts: Record<ReactionKey, number> }) => {
+        setCounts(d.counts);
+        setKvAvailable(true);
+      })
+      .catch(() => { /* graceful */ });
   };
 
   return (
@@ -616,6 +895,11 @@ function ReactionsBar() {
               animate={burst === r.key ? { scale: [1, 1.5, 1.2, 1], rotate: [0, -15, 15, 0] } : {}}
               transition={{ duration: 0.45 }}
               className="text-base leading-none select-none">{r.emoji}</motion.span>
+            {kvAvailable && counts && counts[r.key] > 0 && (
+              <span className="text-[8px] text-amber-400/50 leading-none" style={{ fontFamily: 'var(--font-anton)' }}>
+                {counts[r.key]}
+              </span>
+            )}
           </motion.button>
         ))}
       </div>
@@ -640,6 +924,8 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
   const [showLegacy, setShowLegacy] = useState(false);
   const [modalProject, setModalProject] = useState<Project | null>(null);
   const [shareToast, setShareToast] = useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [skillView, setSkillView] = useState<'grid' | 'web'>('grid');
   const tabOrder = TABS.map(t => t.id);
 
   const switchTab = (id: TabId) => {
@@ -663,14 +949,14 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (modalProject) return;
+      if (modalProject || contactModalOpen) return;
       const cur = tabOrder.indexOf(activeTab);
       if (e.key === 'ArrowRight' && cur < tabOrder.length - 1) switchTab(tabOrder[cur + 1] as TabId);
       else if (e.key === 'ArrowLeft' && cur > 0) switchTab(tabOrder[cur - 1] as TabId);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [activeTab, modalProject]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeTab, modalProject, contactModalOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleShare = async () => {
     const url = window.location.origin + window.location.pathname;
@@ -694,6 +980,10 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
     <div className="min-h-screen relative overflow-hidden" style={{ background: '#020408' }}>
       {/* Project modal */}
       {modalProject && <ProjectModal project={modalProject} onClose={() => setModalProject(null)} />}
+      {/* Contact modal */}
+      {contactModalOpen && (
+        <ContactModal email={data.contact.email} onClose={() => setContactModalOpen(false)} />
+      )}
       <ReactionsBar />
 
       {/* ── Stadium background ── */}
@@ -724,7 +1014,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
       </div>
 
       {/* ── Layout ── */}
-      <div className="relative z-10 flex flex-col lg:flex-row gap-6 items-start justify-center min-h-screen p-4 sm:p-6 lg:p-10 max-w-[1400px] mx-auto">
+      <div className="relative z-10 flex flex-col lg:flex-row gap-6 items-start justify-center min-h-screen p-4 sm:p-6 lg:p-10 pb-24 lg:pb-10 max-w-[1400px] mx-auto">
 
         {/* ── Left: FIFA Card + quick stats ── */}
         <div className="flex flex-col items-center gap-5 lg:sticky lg:top-10 flex-shrink-0">
@@ -783,8 +1073,8 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
             </div>
           </div>
 
-          {/* Tab nav */}
-          <div className="flex gap-1 mb-5 p-1 rounded-xl overflow-x-auto no-scrollbar"
+          {/* Tab nav — desktop only */}
+          <div className="hidden lg:flex gap-1 mb-5 p-1 rounded-xl overflow-x-auto no-scrollbar"
             style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
             {TABS.map(t => (
               <button
@@ -799,6 +1089,28 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
               >
                 <span className="hidden sm:inline">{t.label}</span>
                 <span className="sm:hidden">{t.short}</span>
+                {t.id === 'playbook' && activeTab !== t.id && (
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Mobile tab bar (visible on small screens, shows current tab label) */}
+          <div className="flex lg:hidden gap-1 mb-5 p-1 rounded-xl overflow-x-auto no-scrollbar"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            {TABS.map(t => (
+              <button
+                key={t.id}
+                onClick={() => switchTab(t.id)}
+                className={`flex-shrink-0 relative py-2 px-2.5 rounded-lg text-[11px] font-black tracking-wider transition-all duration-150 ${
+                  activeTab === t.id
+                    ? 'text-black shadow-md'
+                    : 'text-amber-300/60 hover:text-amber-200 hover:bg-white/5'
+                }`}
+                style={{ fontFamily: 'var(--font-anton)', ...(activeTab === t.id ? { background: 'linear-gradient(135deg, #fbbf24, #f59e0b)' } : {}) }}
+              >
+                {t.short}
                 {t.id === 'playbook' && activeTab !== t.id && (
                   <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                 )}
@@ -871,8 +1183,11 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                       </div>
                     </SectionCard>
 
+                    {/* Now Playing Widget */}
+                    <NowPlayingWidget experiences={data.experiences} />
+
                     {/* Sign Me CTA */}
-                    <SignMeCard email={data.contact.email} linkedin={data.contact.linkedin} />
+                    <SignMeCard linkedin={data.contact.linkedin} onOpenModal={() => setContactModalOpen(true)} />
                   </div>
                 )}
 
@@ -1000,26 +1315,51 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
 
                 {/* ── SKILLS ── */}
                 {activeTab === 'skills' && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {data.skills.map((cat, i) => (
-                      <motion.div key={i}
-                        initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.07 }}>
-                        <SectionCard>
-                          <div className="flex items-center gap-2 mb-3">
-                            <h5 className="text-white font-black text-sm tracking-wide"
-                              style={{ fontFamily: 'var(--font-rajdhani)' }}>{cat.category}</h5>
-                          </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {cat.skills.map((s, si) => (
-                              <span key={si}
-                                className="bg-amber-400/10 text-amber-200/80 px-2.5 py-1 rounded-full text-xs border border-amber-400/20 hover:bg-amber-400/20 hover:text-amber-200 transition-colors"
-                                style={{ fontFamily: 'var(--font-rajdhani)' }}>{s}</span>
-                            ))}
-                          </div>
-                        </SectionCard>
-                      </motion.div>
-                    ))}
+                  <div className="space-y-4">
+                    {/* View toggle */}
+                    <div className="flex items-center gap-2">
+                      {(['grid', 'web'] as const).map(v => (
+                        <button key={v} onClick={() => setSkillView(v)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-black tracking-widest border transition-all duration-150 ${
+                            skillView === v
+                              ? 'text-black border-amber-300/70'
+                              : 'text-amber-400/60 border-white/10 hover:border-amber-400/30 hover:text-amber-300'
+                          }`}
+                          style={{ fontFamily: 'var(--font-anton)', ...(skillView === v ? { background: 'linear-gradient(135deg,#fbbf24,#f59e0b)' } : {}) }}>
+                          {v.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+
+                    {skillView === 'web' ? (
+                      <SectionCard>
+                        <div className="text-[10px] font-black tracking-widest text-amber-400 mb-3"
+                          style={{ fontFamily: 'var(--font-anton)' }}>SKILL WEB — click a category node to expand</div>
+                        <SkillWebChart skills={data.skills} />
+                      </SectionCard>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {data.skills.map((cat, i) => (
+                          <motion.div key={i}
+                            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.07 }}>
+                            <SectionCard>
+                              <div className="flex items-center gap-2 mb-3">
+                                <h5 className="text-white font-black text-sm tracking-wide"
+                                  style={{ fontFamily: 'var(--font-rajdhani)' }}>{cat.category}</h5>
+                              </div>
+                              <div className="flex flex-wrap gap-1.5">
+                                {cat.skills.map((s, si) => (
+                                  <span key={si}
+                                    className="bg-amber-400/10 text-amber-200/80 px-2.5 py-1 rounded-full text-xs border border-amber-400/20 hover:bg-amber-400/20 hover:text-amber-200 transition-colors"
+                                    style={{ fontFamily: 'var(--font-rajdhani)' }}>{s}</span>
+                                ))}
+                              </div>
+                            </SectionCard>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1114,6 +1454,72 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                   </div>
                 )}
 
+                {/* ── SCOUTS ── */}
+                {activeTab === 'scouts' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-amber-400 text-lg">⚡</span>
+                      <h3 className="text-white font-black tracking-widest text-base"
+                        style={{ fontFamily: 'var(--font-anton)' }}>SCOUT REPORTS</h3>
+                    </div>
+                    {(data.testimonials ?? []).map((t: Testimonial, i: number) => {
+                      const borderColor = t.relation === 'DIRECT MANAGER'
+                        ? 'border-l-amber-400'
+                        : t.relation === 'RESEARCH ADVISOR'
+                        ? 'border-l-purple-400'
+                        : 'border-l-sky-400';
+                      return (
+                        <motion.div key={i}
+                          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.1 }}>
+                          <SectionCard className={`border-l-[3px] ${borderColor}`}>
+                            {/* Top row */}
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-[10px] font-black tracking-widest px-2 py-0.5 rounded border"
+                                style={{
+                                  fontFamily: 'var(--font-anton)',
+                                  color: t.relation === 'DIRECT MANAGER' ? '#fbbf24' : t.relation === 'RESEARCH ADVISOR' ? '#c084fc' : '#7dd3fc',
+                                  borderColor: t.relation === 'DIRECT MANAGER' ? 'rgba(251,191,36,0.3)' : t.relation === 'RESEARCH ADVISOR' ? 'rgba(192,132,252,0.3)' : 'rgba(125,211,252,0.3)',
+                                  background: t.relation === 'DIRECT MANAGER' ? 'rgba(251,191,36,0.08)' : t.relation === 'RESEARCH ADVISOR' ? 'rgba(192,132,252,0.08)' : 'rgba(125,211,252,0.08)',
+                                }}>
+                                {t.relation}
+                              </span>
+                              <div className="text-right">
+                                <div className="font-black text-amber-300 leading-none text-3xl"
+                                  style={{ fontFamily: 'var(--font-anton)' }}>{t.rating}</div>
+                                <div className="text-[8px] text-amber-400/50 tracking-wider">RATING</div>
+                              </div>
+                            </div>
+
+                            {/* Quote */}
+                            <p className="text-amber-100/80 text-sm leading-relaxed italic mb-4 font-semibold"
+                              style={{ fontFamily: 'var(--font-rajdhani)' }}>
+                              &ldquo;{t.quote}&rdquo;
+                            </p>
+
+                            {/* Attribution */}
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 border border-amber-400/30"
+                                style={{ background: 'rgba(251,191,36,0.1)' }}>
+                                <span className="text-amber-300 font-black text-xs" style={{ fontFamily: 'var(--font-anton)' }}>
+                                  {t.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
+                                </span>
+                              </div>
+                              <div>
+                                <div className="text-white font-black text-sm" style={{ fontFamily: 'var(--font-rajdhani)' }}>{t.name}</div>
+                                <div className="text-amber-400/60 text-xs">{t.title} · {t.company}</div>
+                              </div>
+                            </div>
+                          </SectionCard>
+                        </motion.div>
+                      );
+                    })}
+                    <p className="text-amber-400/30 text-[10px] text-center pt-1" style={{ fontFamily: 'var(--font-rajdhani)' }}>
+                      Scout reports are from colleagues, managers, and advisors — names used with permission.
+                    </p>
+                  </div>
+                )}
+
                 {/* ── PLAYBOOK ── */}
                 {activeTab === 'playbook' && <TacticalBoard />}
 
@@ -1122,6 +1528,42 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
           </div>
         </div>
       </div>
+
+      {/* ── Mobile Bottom Nav ── */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 lg:hidden"
+        style={{
+          background: 'rgba(0,0,0,0.85)',
+          backdropFilter: 'blur(12px)',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          paddingBottom: 'env(safe-area-inset-bottom, 16px)',
+        }}>
+        <div className="flex items-stretch">
+          {[
+            { id: 'info' as TabId,       short: 'INFO',   Icon: Info },
+            { id: 'experience' as TabId, short: 'EXP',    Icon: Briefcase },
+            { id: 'skills' as TabId,     short: 'SKL',    Icon: Zap },
+            { id: 'projects' as TabId,   short: 'PRJ',    Icon: FolderOpen },
+            { id: 'scouts' as TabId,     short: 'SCT',    Icon: Star },
+            { id: 'playbook' as TabId,   short: 'PLAY',   Icon: BookOpen },
+          ].map(({ id, short, Icon }) => {
+            const isActive = activeTab === id;
+            return (
+              <button key={id} onClick={() => switchTab(id)}
+                className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 relative transition-colors"
+                style={{ color: isActive ? '#fbbf24' : 'rgba(255,255,255,0.35)' }}>
+                {isActive && (
+                  <motion.div layoutId="mobile-nav-dot"
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-amber-400"
+                    transition={{ duration: 0.2 }} />
+                )}
+                <Icon className="w-4 h-4" />
+                <span className="text-[9px] font-black tracking-wider leading-none"
+                  style={{ fontFamily: 'var(--font-anton)' }}>{short}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }

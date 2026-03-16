@@ -20,7 +20,7 @@ function TechLogo({ slug, alt, size = 28 }: { slug: string; alt: string; size?: 
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type ConceptId = 'kafka' | 'spark' | 'docker' | 'kubernetes' | 'timescaledb' | 'langchain' | 'redis' | 'airflow' | 'fastapi' | 'prometheus' | 'influxdb' | 'celery' | 'terraform' | 'databricks' | 'postgresql';
+type ConceptId = 'kafka' | 'spark' | 'docker' | 'kubernetes' | 'timescaledb' | 'langchain' | 'redis' | 'airflow' | 'fastapi' | 'prometheus' | 'influxdb' | 'celery' | 'terraform' | 'databricks' | 'postgresql' | 'grafana' | 'clickhouse' | 'langgraph';
 
 interface Concept {
   id: ConceptId;
@@ -222,6 +222,42 @@ const CONCEPTS: Concept[] = [
     matchLog: [
       { label: 'Heartland Community Network — story REST API + GSI', url: 'https://www.heartlandnet.com/' },
       { label: 'AllyIn.ai — GPU telemetry relational store', url: 'https://www.linkedin.com/company/allyin-ai/posts/?feedView=all' },
+    ],
+  },
+  {
+    id: 'grafana',
+    name: 'GRAFANA',
+    tagline: 'The Match Dashboard',
+    type: 'OBSERVABILITY UI',
+    difficulty: 65, impact: 92, reuse: 93, rating: 90,
+    iconSlug: 'grafana',
+    summary: 'Grafana is the live match dashboard — every metric, every trend, every anomaly visualised in real time. It transforms Prometheus scrape data into the tactical board every manager needs to make substitution decisions. Built dashboards at AllyIn.ai tracking GPU SM occupancy, memory bandwidth, and inference throughput across H100/L40S fleet.',
+    matchLog: [
+      { label: 'AllyIn.ai GPU telemetry dashboards', url: 'https://www.linkedin.com/company/allyin-ai/posts/?feedView=all' },
+    ],
+  },
+  {
+    id: 'clickhouse',
+    name: 'CLICKHOUSE',
+    tagline: 'The Dead Ball Specialist',
+    type: 'OLAP DATABASE',
+    difficulty: 82, impact: 95, reuse: 88, rating: 91,
+    iconSlug: 'clickhouse',
+    summary: 'ClickHouse is the dead-ball specialist — give it a set piece (analytical query over billions of rows) and it delivers in milliseconds. Columnar storage and vectorised execution mean WHERE clauses scan only the relevant columns, skipping 90% of data. Used at Runara.ai for aggregating inference latency and cost metrics across GPU fleet at scale.',
+    matchLog: [
+      { label: 'Runara.ai inference analytics', url: '' },
+    ],
+  },
+  {
+    id: 'langgraph',
+    name: 'LANGGRAPH',
+    tagline: 'The Tactical Shape-Shifter',
+    type: 'AGENTIC FRAMEWORK',
+    difficulty: 85, impact: 91, reuse: 84, rating: 89,
+    iconSlug: 'langchain',
+    summary: "LangGraph gives agents a nervous system — stateful, cyclical graphs where LLMs reason, use tools, and loop back to reconsider. Unlike LangChain's linear chains, LangGraph handles branching logic: if the agent is uncertain, it retries; if it hits an edge, it escalates. The missing piece between a simple RAG pipeline and a true autonomous agent.",
+    matchLog: [
+      { label: 'Runara.ai — agentic LLM orchestration', url: '' },
     ],
   },
 ];
@@ -1577,6 +1613,342 @@ function PostgreSQLDiagram() {
   );
 }
 
+// ─── Grafana diagram ──────────────────────────────────────────────────────────
+const GRAFANA_PANELS = [
+  { title: 'GPU Utilization', color: '#34d399', unit: '%' },
+  { title: 'Inference Latency', color: '#60a5fa', unit: 'ms' },
+  { title: 'Cost/hr', color: '#fbbf24', unit: '$' },
+] as const;
+
+function GrafanaDiagram() {
+  const [animKey, setAnimKey] = useState(0);
+  const [panelData, setPanelData] = useState<number[][]>([[], [], []]);
+
+  const generate = () => {
+    return GRAFANA_PANELS.map((_, pi) =>
+      Array.from({ length: 12 }, () => {
+        if (pi === 0) return 40 + Math.random() * 55;
+        if (pi === 1) return 20 + Math.random() * 180;
+        return 0.8 + Math.random() * 3.2;
+      })
+    );
+  };
+
+  useEffect(() => {
+    setPanelData(generate());
+  }, [animKey]);
+
+  const refresh = () => setAnimKey(k => k + 1);
+
+  return (
+    <div className="space-y-3">
+      {GRAFANA_PANELS.map((panel, pi) => {
+        const data = panelData[pi] ?? [];
+        const W = 240, H = 48;
+        const max = data.length > 0 ? Math.max(...data) : 1;
+        const min = data.length > 0 ? Math.min(...data) : 0;
+        const range = max - min || 1;
+        const pts = data.map((v, i) => `${data.length > 1 ? (i / (data.length - 1)) * W : W / 2},${H - ((v - min) / range) * (H - 6) - 3}`).join(' ');
+        const fillPts = data.length > 1 ? `${pts} ${W},${H} 0,${H}` : '';
+        const lastVal = data[data.length - 1];
+        return (
+          <div key={pi} className="rounded-lg border border-white/8 bg-black/30 p-2.5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[9px] font-black tracking-wider" style={{ fontFamily: 'var(--font-anton)', color: panel.color }}>{panel.title}</span>
+              {lastVal !== undefined && (
+                <span className="text-[10px] font-black" style={{ fontFamily: 'var(--font-anton)', color: panel.color }}>
+                  {pi === 2 ? `$${lastVal.toFixed(2)}` : `${Math.round(lastVal)}${panel.unit}`}
+                </span>
+              )}
+            </div>
+            <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ height: 48 }}>
+              {[0.25, 0.5, 0.75].map(f => (
+                <line key={f} x1={0} y1={H * f} x2={W} y2={H * f} stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
+              ))}
+              {data.length > 1 && (
+                <>
+                  <motion.polygon key={`fill-${animKey}-${pi}`} fill={`${panel.color}18`}
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}
+                    points={fillPts} />
+                  <motion.polyline key={`line-${animKey}-${pi}`} fill="none" stroke={panel.color} strokeWidth={1.5}
+                    strokeLinecap="round" strokeLinejoin="round"
+                    initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }}
+                    transition={{ duration: 0.8, ease: 'easeOut' }}
+                    points={pts} />
+                  <circle cx={(data.length - 1) / (data.length - 1) * W} cy={H - ((data[data.length - 1] - min) / range) * (H - 6) - 3} r={3} fill={panel.color} />
+                </>
+              )}
+            </svg>
+          </div>
+        );
+      })}
+      <div className="flex items-center justify-between">
+        <button onClick={refresh}
+          className="flex items-center gap-1.5 bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 text-xs font-black px-3 py-1.5 rounded-lg border border-amber-400/25 transition-colors"
+          style={{ fontFamily: 'var(--font-anton)' }}>
+          <ChevronRight className="w-3 h-3" /> REFRESH
+        </button>
+        <span className="text-amber-400/50 text-xs">AllyIn.ai H100/L40S fleet</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── ClickHouse diagram ───────────────────────────────────────────────────────
+const CH_COLUMNS = ['timestamp', 'gpu_id', 'sm_occ', 'mem_bw', 'cost_hr'] as const;
+const CH_ROWS = [
+  ['2025-01-01 00:00', 'H100-01', '87%', '412 GB/s', '$3.20'],
+  ['2025-01-01 00:01', 'H100-02', '91%', '398 GB/s', '$3.20'],
+  ['2025-01-01 00:02', 'L40S-01', '54%', '201 GB/s', '$1.80'],
+  ['2025-01-01 00:03', 'H100-01', '89%', '405 GB/s', '$3.20'],
+  ['2025-01-01 00:04', 'L40S-02', '62%', '215 GB/s', '$1.80'],
+];
+
+function ClickHouseDiagram() {
+  const [phase, setPhase] = useState<'idle' | 'scanning' | 'done'>('idle');
+  const [highlightCols, setHighlightCols] = useState<number[]>([]);
+  const [dimRows, setDimRows] = useState<number[]>([]);
+  const [result, setResult] = useState<string | null>(null);
+  const [mode, setMode] = useState<'columnar' | 'sequential'>('columnar');
+
+  const runQuery = () => {
+    if (phase === 'scanning') return;
+    setPhase('scanning');
+    setHighlightCols([]);
+    setDimRows([]);
+    setResult(null);
+    // Highlight WHERE condition cols (sm_occ = index 2, gpu_id = index 1)
+    setTimeout(() => setHighlightCols([1, 2]), 400);
+    // Fade non-matching rows (rows where sm_occ < 85 → indices 2,4)
+    setTimeout(() => setDimRows([2, 4]), 900);
+    const timing = mode === 'columnar' ? '23ms' : '4.8s';
+    setTimeout(() => {
+      setResult(`Result: 2.1M rows in ${timing}`);
+      setPhase('done');
+    }, mode === 'columnar' ? 1200 : 2400);
+  };
+
+  const toggleMode = () => {
+    setMode(m => m === 'columnar' ? 'sequential' : 'columnar');
+    setPhase('idle');
+    setHighlightCols([]);
+    setDimRows([]);
+    setResult(null);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-xl border border-white/8 bg-black/30 p-3 overflow-x-auto">
+        <div className="flex items-center gap-1.5 mb-2">
+          <TechLogo slug="clickhouse" alt="ClickHouse" size={14} />
+          <span className="text-[9px] font-black text-amber-400" style={{ fontFamily: 'var(--font-anton)' }}>gpu_metrics · 2.1M rows</span>
+          <span className="ml-auto text-[9px] text-white/30">{mode === 'columnar' ? 'COLUMNAR SCAN' : 'SEQUENTIAL SCAN'}</span>
+        </div>
+        <div className="font-mono text-[7px]">
+          {/* Header */}
+          <div className="flex gap-0 mb-1">
+            {CH_COLUMNS.map((col, ci) => (
+              <div key={ci} className="px-1.5 py-0.5 text-center transition-all duration-300"
+                style={{
+                  minWidth: ci === 0 ? 90 : 60,
+                  background: highlightCols.includes(ci) ? 'rgba(251,191,36,0.2)' : 'rgba(255,255,255,0.05)',
+                  color: highlightCols.includes(ci) ? '#fbbf24' : 'rgba(255,255,255,0.4)',
+                  borderBottom: `1px solid ${highlightCols.includes(ci) ? 'rgba(251,191,36,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                  fontWeight: 700,
+                }}>
+                {col}
+              </div>
+            ))}
+          </div>
+          {/* Rows */}
+          {CH_ROWS.map((row, ri) => (
+            <motion.div key={ri} animate={{ opacity: dimRows.includes(ri) ? 0.15 : 1 }}
+              transition={{ duration: 0.4 }} className="flex gap-0">
+              {row.map((cell, ci) => (
+                <div key={ci} className="px-1.5 py-0.5 text-center transition-all duration-300"
+                  style={{
+                    minWidth: ci === 0 ? 90 : 60,
+                    color: highlightCols.includes(ci) ? '#fbbf24' : 'rgba(255,255,255,0.3)',
+                    background: highlightCols.includes(ci) ? 'rgba(251,191,36,0.05)' : 'transparent',
+                  }}>
+                  {cell}
+                </div>
+              ))}
+            </motion.div>
+          ))}
+        </div>
+        {result && (
+          <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+            className="mt-2 text-[9px] font-black px-2 py-1 rounded border"
+            style={{
+              fontFamily: 'var(--font-anton)',
+              color: mode === 'columnar' ? '#34d399' : '#ef4444',
+              borderColor: mode === 'columnar' ? 'rgba(52,211,153,0.3)' : 'rgba(239,68,68,0.3)',
+              background: mode === 'columnar' ? 'rgba(52,211,153,0.08)' : 'rgba(239,68,68,0.08)',
+            }}>
+            {result}
+          </motion.div>
+        )}
+      </div>
+      <div className="flex items-center gap-2 flex-wrap">
+        <button onClick={runQuery} disabled={phase === 'scanning'}
+          className="flex items-center gap-1.5 bg-amber-400/15 hover:bg-amber-400/25 disabled:opacity-40 text-amber-300 text-xs font-black px-3 py-1.5 rounded-lg border border-amber-400/25 transition-colors"
+          style={{ fontFamily: 'var(--font-anton)' }}>
+          <ChevronRight className="w-3 h-3" /> RUN QUERY
+        </button>
+        <button onClick={toggleMode}
+          className="flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded-lg border transition-colors"
+          style={{
+            fontFamily: 'var(--font-anton)',
+            color: mode === 'columnar' ? '#60a5fa' : '#fbbf24',
+            borderColor: mode === 'columnar' ? 'rgba(96,165,250,0.3)' : 'rgba(251,191,36,0.3)',
+            background: mode === 'columnar' ? 'rgba(96,165,250,0.08)' : 'rgba(251,191,36,0.08)',
+          }}>
+          SWITCH: {mode === 'columnar' ? 'SEQUENTIAL' : 'COLUMNAR'}
+        </button>
+        <span className="text-amber-400/40 text-[9px] ml-auto">columnar: 23ms · seq: 4.8s</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── LangGraph diagram ────────────────────────────────────────────────────────
+const LG_NODES = ['START', 'REASON', 'TOOL USE', 'REFLECT', 'END'] as const;
+type LGNode = typeof LG_NODES[number];
+const LG_EDGES: [LGNode, LGNode][] = [
+  ['START', 'REASON'],
+  ['REASON', 'TOOL USE'],
+  ['TOOL USE', 'REFLECT'],
+  ['REFLECT', 'REASON'],
+  ['REFLECT', 'END'],
+];
+const LG_COLORS: Record<LGNode, string> = {
+  START: '#34d399',
+  REASON: '#fbbf24',
+  'TOOL USE': '#60a5fa',
+  REFLECT: '#a78bfa',
+  END: '#34d399',
+};
+
+function LangGraphDiagram() {
+  const [activeNode, setActiveNode] = useState<LGNode | null>(null);
+  const [visitedNodes, setVisitedNodes] = useState<LGNode[]>([]);
+  const [running, setRunning] = useState(false);
+  const [loopCount, setLoopCount] = useState(0);
+
+  const runAgent = () => {
+    if (running) return;
+    setRunning(true);
+    setActiveNode(null);
+    setVisitedNodes([]);
+    setLoopCount(0);
+
+    // Path: START → REASON → TOOL USE → REFLECT → REASON → TOOL USE → REFLECT → END
+    const path: LGNode[] = ['START', 'REASON', 'TOOL USE', 'REFLECT', 'REASON', 'TOOL USE', 'REFLECT', 'END'];
+    let loopsSeen = 0;
+    path.forEach((node, i) => {
+      setTimeout(() => {
+        setActiveNode(node);
+        setVisitedNodes(prev => prev.includes(node) ? prev : [...prev, node]);
+        if (node === 'REASON' && i > 0) { loopsSeen++; setLoopCount(loopsSeen); }
+        if (i === path.length - 1) { setTimeout(() => setRunning(false), 600); }
+      }, i * 700);
+    });
+  };
+
+  // Node positions for a simple flow layout
+  const nodePositions: Record<LGNode, { x: number; y: number }> = {
+    START:      { x: 40,  y: 80 },
+    REASON:     { x: 120, y: 80 },
+    'TOOL USE': { x: 200, y: 80 },
+    REFLECT:    { x: 280, y: 80 },
+    END:        { x: 360, y: 80 },
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-xl border border-white/8 bg-black/30 p-3">
+        <div className="flex items-center gap-1.5 mb-3">
+          <TechLogo slug="langchain" alt="LangGraph" size={14} />
+          <span className="text-[9px] font-black text-purple-400" style={{ fontFamily: 'var(--font-anton)' }}>LANGGRAPH AGENT</span>
+          {loopCount > 0 && <span className="ml-auto text-[9px] text-amber-400/60">loops: {loopCount}</span>}
+        </div>
+        <svg width="100%" viewBox="0 0 400 160" style={{ height: 100 }}>
+          {/* Edges */}
+          {LG_EDGES.map(([from, to], i) => {
+            const fp = nodePositions[from], tp = nodePositions[to];
+            const isLoop = from === 'REFLECT' && to === 'REASON';
+            if (isLoop) {
+              return (
+                <path key={i}
+                  d={`M ${fp.x} ${fp.y} C ${fp.x} 130, ${tp.x} 130, ${tp.x} ${tp.y}`}
+                  fill="none" stroke="rgba(167,139,250,0.3)" strokeWidth={1.5}
+                  strokeDasharray="4 3" />
+              );
+            }
+            return (
+              <line key={i} x1={fp.x} y1={fp.y} x2={tp.x} y2={tp.y}
+                stroke="rgba(255,255,255,0.12)" strokeWidth={1.5} />
+            );
+          })}
+          {/* Nodes */}
+          {LG_NODES.map(node => {
+            const pos = nodePositions[node];
+            const isActive = activeNode === node;
+            const isVisited = visitedNodes.includes(node);
+            const color = LG_COLORS[node];
+            return (
+              <g key={node}>
+                <motion.circle cx={pos.x} cy={pos.y} r={20}
+                  fill={isActive ? `${color}30` : isVisited ? `${color}15` : 'rgba(255,255,255,0.04)'}
+                  stroke={isActive ? color : isVisited ? `${color}60` : 'rgba(255,255,255,0.12)'}
+                  strokeWidth={isActive ? 2 : 1}
+                  animate={isActive ? { r: [20, 22, 20] } : { r: 20 }}
+                  transition={{ duration: 0.4, repeat: isActive ? Infinity : 0 }}
+                />
+                <text x={pos.x} y={pos.y - 2} textAnchor="middle" dominantBaseline="middle"
+                  fontSize={6} fontWeight="700"
+                  style={{ fontFamily: 'var(--font-anton)', fill: isActive ? color : isVisited ? `${color}90` : 'rgba(255,255,255,0.3)' }}>
+                  {node.split(' ')[0]}
+                </text>
+                {node.includes(' ') && (
+                  <text x={pos.x} y={pos.y + 6} textAnchor="middle" dominantBaseline="middle"
+                    fontSize={6} fontWeight="700"
+                    style={{ fontFamily: 'var(--font-anton)', fill: isActive ? color : isVisited ? `${color}90` : 'rgba(255,255,255,0.3)' }}>
+                    {node.split(' ')[1]}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+          {/* Loop label */}
+          <text x={200} y={148} textAnchor="middle" fontSize={7} fill="rgba(167,139,250,0.4)"
+            style={{ fontFamily: 'var(--font-rajdhani)' }}>loop back if uncertain</text>
+        </svg>
+        {activeNode && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="text-[9px] font-black text-center mt-1"
+            style={{ fontFamily: 'var(--font-anton)', color: LG_COLORS[activeNode] }}>
+            {activeNode === 'REASON' && 'REASONING...'}
+            {activeNode === 'TOOL USE' && 'CALLING TOOL...'}
+            {activeNode === 'REFLECT' && (loopCount < 2 ? 'UNCERTAIN — LOOPING BACK' : 'CONFIDENT — EXITING')}
+            {activeNode === 'START' && 'AGENT STARTING'}
+            {activeNode === 'END' && 'TASK COMPLETE ✓'}
+          </motion.div>
+        )}
+      </div>
+      <div className="flex items-center justify-between">
+        <button onClick={runAgent} disabled={running}
+          className="flex items-center gap-1.5 bg-purple-500/15 hover:bg-purple-500/25 disabled:opacity-40 text-purple-300 text-xs font-black px-3 py-1.5 rounded-lg border border-purple-500/25 transition-colors"
+          style={{ fontFamily: 'var(--font-anton)' }}>
+          <ChevronRight className="w-3 h-3" /> {running ? 'RUNNING...' : 'RUN AGENT'}
+        </button>
+        <span className="text-amber-400/50 text-xs">stateful · cyclical · autonomous</span>
+      </div>
+    </div>
+  );
+}
+
 // ─── Stat pill ────────────────────────────────────────────────────────────────
 function ConceptStat({ label, value }: { label: string; value: number }) {
   return (
@@ -1632,6 +2004,9 @@ function ConceptDiagram({ id }: { id: ConceptId }) {
     case 'terraform':   return <TerraformDiagram />;
     case 'databricks':  return <DatabricksDiagram />;
     case 'postgresql':  return <PostgreSQLDiagram />;
+    case 'grafana':     return <GrafanaDiagram />;
+    case 'clickhouse':  return <ClickHouseDiagram />;
+    case 'langgraph':   return <LangGraphDiagram />;
   }
 }
 
@@ -1715,7 +2090,7 @@ export default function TacticalBoard() {
           TACTICAL PLAYBOOK
         </div>
         <p className="text-amber-100/55 text-xs" style={{ fontFamily: 'var(--font-rajdhani)' }}>
-          Fifteen technologies I&apos;ve run in production, broken down like match tactics. Pick a card and interact with the live demo.
+          Eighteen technologies I&apos;ve run in production, broken down like match tactics. Pick a card and interact with the live demo.
         </p>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">

@@ -70,6 +70,16 @@ export interface PlayerStats {
   overall: number;
 }
 
+export interface Testimonial {
+  name: string;
+  title: string;
+  company: string;
+  relation: string;
+  quote: string;
+  rating: number;
+  avatar?: string;
+}
+
 export interface PlayerData {
   personalInfo: {
     name: string;
@@ -86,6 +96,7 @@ export interface PlayerData {
   projects: Project[];
   skills: Skill[];
   blogs: Blog[];
+  testimonials: Testimonial[];
   stats: PlayerStats;
   contact: {
     email: string;
