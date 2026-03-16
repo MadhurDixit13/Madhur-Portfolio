@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { PlayerData, Project, Experience, Blog } from '@/types/player';
 import TacticalBoard from './TacticalBoard';
+import { track } from '@vercel/analytics';
 
 // ─── Animated counter ────────────────────────────────────────────────────────
 function AnimatedCounter({ value, duration = 1.2 }: { value: number; duration?: number }) {
@@ -460,11 +461,14 @@ function SignMeCard({ email, linkedin }: { email: string; linkedin: string }) {
 
   const handleSign = () => {
     setSigned(true);
+    track('sign_me_click');
     const subject = encodeURIComponent("We Want to Sign You — Let's Begin Talks ⚽");
     const body = encodeURIComponent(
       `Hi Madhur,\n\nWe came across your portfolio and we're impressed by your work. We'd love to discuss an opportunity with you.\n\nLooking forward to connecting!\n`
     );
-    window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+    const a = document.createElement('a');
+    a.href = `mailto:${email}?subject=${subject}&body=${body}`;
+    a.click();
   };
 
   return (
@@ -564,6 +568,61 @@ function BlogCard({ blog, index }: { blog: Blog; index: number }) {
   );
 }
 
+// ─── Reactions bar ────────────────────────────────────────────────────────────
+const REACTIONS = [
+  { emoji: '⚡', label: 'QUICK', key: 'quick' },
+  { emoji: '🔥', label: 'HOT', key: 'fire' },
+  { emoji: '⚽', label: 'TACTIC', key: 'soccer' },
+  { emoji: '💼', label: 'HIRE', key: 'hire' },
+  { emoji: '🎯', label: 'TARGET', key: 'target' },
+] as const;
+type ReactionKey = typeof REACTIONS[number]['key'];
+
+function ReactionsBar() {
+  const [reacted, setReacted] = useState<ReactionKey | null>(null);
+  const [burst, setBurst] = useState<ReactionKey | null>(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('portfolio_reaction');
+      if (stored) setReacted(stored as ReactionKey);
+    } catch { /* SSR */ }
+  }, []);
+
+  const react = (key: ReactionKey) => {
+    if (reacted) return;
+    setReacted(key);
+    setBurst(key);
+    setTimeout(() => setBurst(null), 600);
+    try { localStorage.setItem('portfolio_reaction', key); } catch { /* */ }
+    track('reaction', { type: key });
+  };
+
+  return (
+    <div className="fixed bottom-5 right-4 sm:right-6 z-40 flex flex-col items-end gap-1.5">
+      <div className="text-[8px] text-amber-400/30 font-black tracking-widest pr-1"
+        style={{ fontFamily: 'var(--font-anton)' }}>
+        {reacted ? 'REACTED' : 'REACT'}
+      </div>
+      <div className="flex gap-1 bg-black/70 backdrop-blur-md border border-white/10 rounded-2xl px-2.5 py-2 shadow-lg shadow-black/40">
+        {REACTIONS.map(r => (
+          <motion.button key={r.key} onClick={() => react(r.key)}
+            whileHover={!reacted ? { scale: 1.28, y: -3 } : {}}
+            whileTap={!reacted ? { scale: 0.88 } : {}}
+            disabled={!!reacted}
+            title={r.label}
+            className={`flex flex-col items-center gap-0.5 transition-opacity ${reacted && reacted !== r.key ? 'opacity-20' : 'opacity-80 hover:opacity-100'}`}>
+            <motion.span
+              animate={burst === r.key ? { scale: [1, 1.5, 1.2, 1], rotate: [0, -15, 15, 0] } : {}}
+              transition={{ duration: 0.45 }}
+              className="text-base leading-none select-none">{r.emoji}</motion.span>
+          </motion.button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 interface FIFAPlayerCardProps { data: PlayerData }
 
@@ -587,6 +646,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
     setPrevTab(activeTab);
     setActiveTab(id);
     if (typeof window !== 'undefined') window.location.hash = id;
+    track('tab_switch', { tab: id });
   };
 
   // Sync hash → tab on popstate (browser back/forward)
@@ -634,6 +694,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
     <div className="min-h-screen relative overflow-hidden" style={{ background: '#020408' }}>
       {/* Project modal */}
       {modalProject && <ProjectModal project={modalProject} onClose={() => setModalProject(null)} />}
+      <ReactionsBar />
 
       {/* ── Stadium background ── */}
       <div className="absolute inset-0 pointer-events-none">

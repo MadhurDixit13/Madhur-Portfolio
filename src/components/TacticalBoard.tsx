@@ -20,7 +20,7 @@ function TechLogo({ slug, alt, size = 28 }: { slug: string; alt: string; size?: 
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-type ConceptId = 'kafka' | 'spark' | 'docker' | 'kubernetes' | 'timescaledb' | 'langchain' | 'redis' | 'airflow' | 'fastapi' | 'prometheus' | 'influxdb' | 'celery';
+type ConceptId = 'kafka' | 'spark' | 'docker' | 'kubernetes' | 'timescaledb' | 'langchain' | 'redis' | 'airflow' | 'fastapi' | 'prometheus' | 'influxdb' | 'celery' | 'terraform' | 'databricks' | 'postgresql';
 
 interface Concept {
   id: ConceptId;
@@ -185,6 +185,43 @@ const CONCEPTS: Concept[] = [
     summary: 'Celery is the rotation squad — background workers that pick up tasks from a broker (Redis) and process them without blocking the main thread. Used at Runara.ai to queue LLM inference jobs so the API stays responsive while heavy GPU work runs asynchronously.',
     matchLog: [
       { label: 'Runara.ai — LLM inference job queue', url: '' },
+    ],
+  },
+  {
+    id: 'terraform',
+    name: 'TERRAFORM',
+    tagline: 'The Transfer Window',
+    type: 'INFRASTRUCTURE AS CODE',
+    difficulty: 80, impact: 93, reuse: 92, rating: 90,
+    iconSlug: 'terraform',
+    summary: 'Terraform is the transfer window. You declare the squad you want (desired infra), and Terraform\'s plan/apply cycle negotiates with every cloud API to make it reality. State files track what\'s on the pitch; drift detection fires when the real world diverges from the blueprint. Used at Runara.ai to provision GPU serving infrastructure reproducibly.',
+    matchLog: [
+      { label: 'Runara.ai — GPU serving infra', url: '' },
+    ],
+  },
+  {
+    id: 'databricks',
+    name: 'DATABRICKS',
+    tagline: 'The Training Ground',
+    type: 'LAKEHOUSE PLATFORM',
+    difficulty: 84, impact: 95, reuse: 86, rating: 92,
+    iconSlug: 'databricks',
+    summary: 'Databricks is the training ground where raw talent (Bronze) gets shaped into match-ready form (Gold). The medallion architecture layers cleaning, enrichment, and aggregation so each squad member arrives at the pitch analysis-ready. Used in CarePulse Analytics to process 10,000+ patient records on AWS Kinesis with SCD Type 2 dimensions and CDC logic.',
+    matchLog: [
+      { label: 'CarePulse Analytics — Bronze→Gold medallion', url: 'https://github.com/MadhurDixit13/CarePulse' },
+    ],
+  },
+  {
+    id: 'postgresql',
+    name: 'POSTGRESQL',
+    tagline: 'The Tactical Database',
+    type: 'RELATIONAL DATABASE',
+    difficulty: 70, impact: 91, reuse: 97, rating: 89,
+    iconSlug: 'postgresql',
+    summary: 'PostgreSQL is the squad database — it stores every player stat, every formation, every historical record with ACID guarantees. Its query planner chooses between sequential scans, index seeks, and joins the way a manager reads the match; the right execution plan turns a 5s query into a 50ms sprint. Used across multiple projects for schema design, indexing, and complex analytics.',
+    matchLog: [
+      { label: 'Heartland Community Network — story REST API + GSI', url: 'https://www.heartlandnet.com/' },
+      { label: 'AllyIn.ai — GPU telemetry relational store', url: 'https://www.linkedin.com/company/allyin-ai/posts/?feedView=all' },
     ],
   },
 ];
@@ -1242,6 +1279,304 @@ function CeleryDiagram() {
   );
 }
 
+// ─── Terraform animation ──────────────────────────────────────────────────────
+const TF_RESOURCES = [
+  { name: 'aws_instance.api_server', type: 'EC2' },
+  { name: 'aws_s3_bucket.model_store', type: 'S3' },
+  { name: 'aws_db_instance.metrics_pg', type: 'RDS' },
+  { name: 'aws_security_group.gpu_sg', type: 'SG' },
+] as const;
+
+function TerraformDiagram() {
+  type TFStatus = 'pending' | 'creating' | 'created';
+  const [phase, setPhase] = useState<'idle' | 'planning' | 'planned' | 'applying' | 'applied'>('idle');
+  const [statuses, setStatuses] = useState<TFStatus[]>(['pending', 'pending', 'pending', 'pending']);
+
+  const plan = () => {
+    if (phase !== 'idle' && phase !== 'applied') return;
+    setPhase('planning');
+    setStatuses(['pending', 'pending', 'pending', 'pending']);
+    setTimeout(() => setPhase('planned'), 1400);
+  };
+
+  const apply = () => {
+    if (phase !== 'planned') return;
+    setPhase('applying');
+    TF_RESOURCES.forEach((_, i) => {
+      setTimeout(() => {
+        setStatuses(prev => { const n = [...prev]; n[i] = 'creating'; return n; });
+        setTimeout(() => {
+          setStatuses(prev => { const n = [...prev]; n[i] = 'created'; return n; });
+          if (i === TF_RESOURCES.length - 1) setPhase('applied');
+        }, 700);
+      }, i * 600);
+    });
+  };
+
+  const statusColor = (s: TFStatus) => s === 'created' ? '#34d399' : s === 'creating' ? '#fbbf24' : 'rgba(255,255,255,0.15)';
+  const statusLabel = (s: TFStatus) => s === 'created' ? '✓ created' : s === 'creating' ? '⟳ creating...' : '○ pending';
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-xl border border-white/8 bg-black/30 p-3">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-1.5">
+            <TechLogo slug="terraform" alt="Terraform" size={14} />
+            <span className="text-[9px] font-black text-purple-400" style={{ fontFamily: 'var(--font-anton)' }}>
+              {phase === 'planning' ? 'PLANNING...' : phase === 'planned' ? 'PLAN READY' : phase === 'applying' ? 'APPLYING...' : phase === 'applied' ? 'APPLIED ✓' : 'TERRAFORM'}
+            </span>
+          </div>
+          {phase === 'planned' && (
+            <span className="text-[9px] text-amber-400/70">{TF_RESOURCES.length} to add · 0 to destroy</span>
+          )}
+        </div>
+        {/* Plan output-style log */}
+        {(phase === 'planned' || phase === 'applying' || phase === 'applied') && (
+          <div className="bg-black/50 rounded font-mono text-[8px] p-2 mb-2 border border-white/5 space-y-1">
+            {TF_RESOURCES.map((r, i) => (
+              <motion.div key={r.name} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="flex items-center gap-2">
+                <span style={{ color: statusColor(statuses[i]) }}>{statusLabel(statuses[i])}</span>
+                <span className="text-white/40">{r.name}</span>
+                <span className="text-white/20">({r.type})</span>
+              </motion.div>
+            ))}
+          </div>
+        )}
+        {phase === 'idle' && (
+          <div className="text-white/20 text-[9px] text-center py-2">run plan to preview infrastructure changes</div>
+        )}
+        {phase === 'planning' && (
+          <div className="flex items-center gap-2 py-2">
+            <motion.div className="w-1.5 h-1.5 rounded-full bg-purple-400" animate={{ opacity: [1, 0.2, 1] }} transition={{ duration: 0.6, repeat: Infinity }} />
+            <span className="text-[9px] text-purple-400/70">Refreshing state...</span>
+          </div>
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        <button onClick={plan} disabled={phase === 'planning' || phase === 'applying'}
+          className="flex items-center gap-1.5 bg-purple-500/15 hover:bg-purple-500/25 disabled:opacity-40 text-purple-300 text-xs font-black px-3 py-1.5 rounded-lg border border-purple-500/25 transition-colors"
+          style={{ fontFamily: 'var(--font-anton)' }}>
+          <ChevronRight className="w-3 h-3" /> PLAN
+        </button>
+        <button onClick={apply} disabled={phase !== 'planned'}
+          className="flex items-center gap-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 disabled:opacity-40 text-emerald-300 text-xs font-black px-3 py-1.5 rounded-lg border border-emerald-500/25 transition-colors"
+          style={{ fontFamily: 'var(--font-anton)' }}>
+          <ChevronRight className="w-3 h-3" /> APPLY
+        </button>
+        <span className="text-amber-400/40 text-xs ml-auto">
+          {phase === 'applied' ? `${TF_RESOURCES.length} resources provisioned` : 'plan first, then apply'}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Databricks animation ─────────────────────────────────────────────────────
+const MEDALLION_LAYERS = [
+  { name: 'BRONZE', color: '#cd7f32', bg: 'rgba(205,127,50,0.12)', border: 'rgba(205,127,50,0.35)', desc: 'Raw ingest' },
+  { name: 'SILVER', color: '#b0c4de', bg: 'rgba(176,196,222,0.12)', border: 'rgba(176,196,222,0.35)', desc: 'Cleaned + joined' },
+  { name: 'GOLD', color: '#fbbf24', bg: 'rgba(251,191,36,0.12)', border: 'rgba(251,191,36,0.35)', desc: 'Aggregated KPIs' },
+] as const;
+
+function DatabricksDiagram() {
+  const [layer, setLayer] = useState(-1);
+  const [rows, setRows] = useState([0, 0, 0]);
+  const [running, setRunning] = useState(false);
+
+  const runBatch = () => {
+    if (running) return;
+    setRunning(true);
+    setLayer(0); setRows([0, 0, 0]);
+    // Bronze: ingest
+    let bronzeCount = 0;
+    const bronzeTimer = setInterval(() => {
+      bronzeCount += 312 + Math.floor(Math.random() * 200);
+      setRows(prev => [Math.min(bronzeCount, 10247), prev[1], prev[2]]);
+      if (bronzeCount >= 10247) { clearInterval(bronzeTimer); step1(); }
+    }, 100);
+  };
+
+  const step1 = () => {
+    setLayer(1);
+    let silverCount = 0;
+    const t = setInterval(() => {
+      silverCount += 210 + Math.floor(Math.random() * 150);
+      setRows(prev => [prev[0], Math.min(silverCount, 9874), prev[2]]);
+      if (silverCount >= 9874) { clearInterval(t); step2(); }
+    }, 120);
+  };
+
+  const step2 = () => {
+    setLayer(2);
+    let goldCount = 0;
+    const t = setInterval(() => {
+      goldCount += 15 + Math.floor(Math.random() * 10);
+      setRows(prev => [prev[0], prev[1], Math.min(goldCount, 150)]);
+      if (goldCount >= 150) { clearInterval(t); setLayer(3); setRunning(false); }
+    }, 90);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-xl border border-white/8 bg-black/30 p-3">
+        <div className="flex items-center gap-1.5 mb-3">
+          <TechLogo slug="databricks" alt="Databricks" size={14} />
+          <span className="text-[9px] font-black text-amber-400" style={{ fontFamily: 'var(--font-anton)' }}>MEDALLION ARCHITECTURE</span>
+          {layer === 3 && <span className="ml-auto text-[9px] text-emerald-400 font-black" style={{ fontFamily: 'var(--font-anton)' }}>COMPLETE ✓</span>}
+        </div>
+        <div className="flex items-center gap-1.5">
+          {MEDALLION_LAYERS.map((l, i) => (
+            <div key={l.name} className="flex items-center gap-1.5 flex-1">
+              <motion.div
+                animate={layer === i ? { boxShadow: [`0 0 0px transparent`, `0 0 12px ${l.color}`, `0 0 0px transparent`] } : {}}
+                transition={{ duration: 0.8, repeat: layer === i ? Infinity : 0 }}
+                className="flex-1 rounded-lg border p-2 text-center transition-all duration-300"
+                style={{ background: layer >= i ? l.bg : 'rgba(255,255,255,0.02)', borderColor: layer >= i ? l.border : 'rgba(255,255,255,0.06)' }}>
+                <div className="text-[8px] font-black mb-0.5" style={{ fontFamily: 'var(--font-anton)', color: layer >= i ? l.color : 'rgba(255,255,255,0.2)' }}>
+                  {l.name}
+                </div>
+                <div className="text-[7px] text-white/30 mb-1">{l.desc}</div>
+                <div className="text-[10px] font-black" style={{ fontFamily: 'var(--font-anton)', color: layer >= i ? l.color : 'rgba(255,255,255,0.15)' }}>
+                  {rows[i].toLocaleString()}
+                </div>
+                <div className="text-[6px] text-white/20">rows</div>
+              </motion.div>
+              {i < MEDALLION_LAYERS.length - 1 && (
+                <motion.div animate={layer > i ? { opacity: 1 } : { opacity: 0.15 }}
+                  className="text-amber-400 text-xs shrink-0">→</motion.div>
+              )}
+            </div>
+          ))}
+        </div>
+        {layer === 3 && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="mt-2 text-center text-[9px] font-black text-amber-400/70" style={{ fontFamily: 'var(--font-anton)' }}>
+            150 high-risk patients identified · Gold layer ready for BI
+          </motion.div>
+        )}
+      </div>
+      <div className="flex items-center justify-between">
+        <button onClick={runBatch} disabled={running}
+          className="flex items-center gap-1.5 bg-amber-400/15 hover:bg-amber-400/25 disabled:opacity-40 text-amber-300 text-xs font-black px-3 py-1.5 rounded-lg border border-amber-400/25 transition-colors"
+          style={{ fontFamily: 'var(--font-anton)' }}>
+          <ChevronRight className="w-3 h-3" /> {running ? 'PROCESSING...' : 'RUN BATCH JOB'}
+        </button>
+        <span className="text-amber-400/50 text-xs">CarePulse · 10,247 patient records</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── PostgreSQL animation ──────────────────────────────────────────────────────
+const PG_QUERIES = [
+  {
+    label: 'SEQ SCAN (no index)',
+    query: 'SELECT * FROM stories\nWHERE author_id = 42;',
+    plan: [{ op: 'Seq Scan on stories', cost: '0..4821', rows: 1, note: 'filter on author_id' }],
+    duration: 4820,
+    color: '#ef4444',
+  },
+  {
+    label: 'INDEX SCAN (with GSI)',
+    query: 'SELECT * FROM stories\nWHERE author_id = 42;\n-- idx: stories_author_id_idx',
+    plan: [
+      { op: 'Index Scan (stories_author_id_idx)', cost: '0..8', rows: 1, note: 'index cond: author_id=42' },
+    ],
+    duration: 8,
+    color: '#34d399',
+  },
+] as const;
+
+function PostgreSQLDiagram() {
+  const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  const [elapsed, setElapsed] = useState<Record<number, number>>({});
+  const [done, setDone] = useState<Record<number, boolean>>({});
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const runQuery = (idx: number) => {
+    if (activeIdx !== null) return;
+    const target = PG_QUERIES[idx].duration;
+    const step = target > 1000 ? 120 : 6;
+    setActiveIdx(idx);
+    setDone(prev => ({ ...prev, [idx]: false }));
+    setElapsed(prev => ({ ...prev, [idx]: 0 }));
+    let acc = 0;
+    timerRef.current = setInterval(() => {
+      acc += step;
+      setElapsed(prev => ({ ...prev, [idx]: acc }));
+      if (acc >= target) {
+        clearInterval(timerRef.current!);
+        setElapsed(prev => ({ ...prev, [idx]: target }));
+        setDone(prev => ({ ...prev, [idx]: true }));
+        setActiveIdx(null);
+      }
+    }, step > 50 ? 80 : 10);
+  };
+
+  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
+
+  return (
+    <div className="space-y-3">
+      {PG_QUERIES.map((q, idx) => (
+        <div key={idx} className="rounded-xl border border-white/8 bg-black/30 p-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <TechLogo slug="postgresql" alt="PostgreSQL" size={13} />
+              <span className="text-[9px] font-black" style={{ fontFamily: 'var(--font-anton)', color: q.color }}>{q.label}</span>
+            </div>
+            {done[idx] && (
+              <span className="text-[9px] font-black" style={{ fontFamily: 'var(--font-anton)', color: q.color }}>
+                {q.duration >= 1000 ? `${(q.duration / 1000).toFixed(1)}s` : `${q.duration}ms`}
+              </span>
+            )}
+            {activeIdx === idx && (
+              <span className="text-[9px] text-white/40">
+                {(elapsed[idx] / (q.duration > 1000 ? 1000 : 1)).toFixed(q.duration > 1000 ? 2 : 0)}{q.duration > 1000 ? 's' : 'ms'}...
+              </span>
+            )}
+          </div>
+          <div className="bg-black/40 rounded px-2 py-1.5 mb-2 font-mono text-[8px] text-white/40 whitespace-pre leading-relaxed border border-white/5">
+            {q.query}
+          </div>
+          {/* EXPLAIN plan */}
+          {(done[idx] || activeIdx === idx) && (
+            <div className="bg-black/30 rounded px-2 py-1.5 mb-2 border border-white/5">
+              {q.plan.map((p, pi) => (
+                <motion.div key={pi} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  className="text-[8px] font-mono space-y-0.5">
+                  <div style={{ color: q.color }}>{p.op}</div>
+                  <div className="text-white/30">cost={p.cost}  rows={p.rows}</div>
+                  <div className="text-white/20 italic">{p.note}</div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+          {(activeIdx === idx || done[idx]) && (
+            <div className="h-1.5 bg-white/8 rounded-full overflow-hidden">
+              <motion.div className="h-full rounded-full" style={{ background: q.color }}
+                animate={{ width: done[idx] ? '100%' : `${Math.min(((elapsed[idx] ?? 0) / q.duration) * 100, 99)}%` }}
+                transition={{ duration: 0.08 }} />
+            </div>
+          )}
+          <button onClick={() => runQuery(idx)} disabled={activeIdx !== null}
+            className="mt-2 flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded border transition-colors disabled:opacity-40"
+            style={{ fontFamily: 'var(--font-anton)', color: q.color, borderColor: `${q.color}40`, background: `${q.color}10` }}>
+            <ChevronRight className="w-3 h-3" /> {activeIdx === idx ? 'RUNNING...' : done[idx] ? 'RUN AGAIN' : 'EXPLAIN ANALYZE'}
+          </button>
+        </div>
+      ))}
+      {done[0] && done[1] && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          className="text-center text-[9px] font-black text-emerald-400 py-1" style={{ fontFamily: 'var(--font-anton)' }}>
+          INDEX SCAN IS 600x FASTER — same query, right schema design
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
 // ─── Stat pill ────────────────────────────────────────────────────────────────
 function ConceptStat({ label, value }: { label: string; value: number }) {
   return (
@@ -1294,6 +1629,9 @@ function ConceptDiagram({ id }: { id: ConceptId }) {
     case 'prometheus':  return <PrometheusDiagram />;
     case 'influxdb':    return <InfluxDBDiagram />;
     case 'celery':      return <CeleryDiagram />;
+    case 'terraform':   return <TerraformDiagram />;
+    case 'databricks':  return <DatabricksDiagram />;
+    case 'postgresql':  return <PostgreSQLDiagram />;
   }
 }
 
@@ -1377,7 +1715,7 @@ export default function TacticalBoard() {
           TACTICAL PLAYBOOK
         </div>
         <p className="text-amber-100/55 text-xs" style={{ fontFamily: 'var(--font-rajdhani)' }}>
-          Twelve technologies I&apos;ve run in production, broken down like match tactics. Pick a card and interact with the live demo.
+          Fifteen technologies I&apos;ve run in production, broken down like match tactics. Pick a card and interact with the live demo.
         </p>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
