@@ -96,19 +96,16 @@ function GoldCardFront({ glowing }: { glowing: boolean }) {
             style={{ fontSize: 'clamp(7px, 1vw, 9px)' }}>ENG</div>
         </div>
 
-        {/* Photo */}
-        <div className="flex-1 flex items-center justify-center mt-[6%]">
-          <div className="rounded-lg overflow-hidden"
-            style={{ width: '70%', aspectRatio: '1/1.2', position: 'relative' }}>
-            <div className="absolute inset-0 bg-cover bg-top"
-              style={{ backgroundImage: "url('/madhur-photo.jpg')" }} />
-          </div>
+        {/* Photo — flex-1 so it fills remaining space without pushing name out */}
+        <div className="flex-1 relative rounded overflow-hidden mt-[3%]" style={{ minHeight: 0 }}>
+          <div className="absolute inset-0 bg-cover bg-top"
+            style={{ backgroundImage: "url('/madhur-photo.jpg')" }} />
         </div>
 
         {/* Name */}
-        <div className="text-center mt-[6%]">
-          <div className="font-black text-amber-100 tracking-[0.05em]"
-            style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(7px, 1.1vw, 10px)' }}>
+        <div className="text-center mt-[4%] shrink-0">
+          <div className="font-black text-amber-100"
+            style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(7px, 1.4vw, 11px)', letterSpacing: '0.02em' }}>
             MADHUR DIXIT
           </div>
         </div>
@@ -169,18 +166,24 @@ function FlipCard({
   );
 }
 
-// ─── Gold particles ───────────────────────────────────────────────────────────
+// ─── Confetti burst ───────────────────────────────────────────────────────────
+const CONFETTI_COLORS = ['#fbbf24', '#f59e0b', '#ffffff', '#34d399', '#60a5fa', '#f472b6', '#a78bfa'];
+type ConfettiPiece = { x: number; y: number; a: number; size: number; delay: number; color: string; rect: boolean; rot: number };
+
 function GoldBurst({ active }: { active: boolean }) {
-  const [particles, setParticles] = useState<{ x: number; y: number; a: number; size: number; delay: number }[]>([]);
+  const [pieces, setPieces] = useState<ConfettiPiece[]>([]);
 
   useEffect(() => {
     if (active) {
-      setParticles(Array.from({ length: 50 }, () => ({
-        x: 45 + Math.random() * 10,
-        y: 40 + Math.random() * 20,
+      setPieces(Array.from({ length: 90 }, () => ({
+        x: 40 + Math.random() * 20,
+        y: 30 + Math.random() * 25,
         a: Math.random() * 360,
-        size: Math.random() * 5 + 3,
-        delay: Math.random() * 0.4,
+        size: Math.random() * 6 + 3,
+        delay: Math.random() * 0.5,
+        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+        rect: Math.random() > 0.45,
+        rot: Math.random() * 360,
       })));
     }
   }, [active]);
@@ -188,25 +191,31 @@ function GoldBurst({ active }: { active: boolean }) {
   if (!active) return null;
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      {particles.map((p, i) => (
-        <motion.div
-          key={i}
-          className="absolute rounded-full"
-          style={{
-            left: `${p.x}%`, top: `${p.y}%`,
-            width: p.size, height: p.size,
-            background: i % 3 === 0 ? '#fbbf24' : i % 3 === 1 ? '#f59e0b' : '#ffffff',
-          }}
-          initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
-          animate={{
-            x: Math.cos((p.a * Math.PI) / 180) * (80 + Math.random() * 120),
-            y: Math.sin((p.a * Math.PI) / 180) * (80 + Math.random() * 120),
-            opacity: 0,
-            scale: 0,
-          }}
-          transition={{ duration: 0.9 + Math.random() * 0.6, delay: p.delay, ease: 'easeOut' }}
-        />
-      ))}
+      {pieces.map((p, i) => {
+        const dist = 100 + Math.random() * 160;
+        return (
+          <motion.div
+            key={i}
+            style={{
+              position: 'absolute',
+              left: `${p.x}%`, top: `${p.y}%`,
+              width: p.rect ? p.size * 1.8 : p.size,
+              height: p.rect ? p.size * 0.7 : p.size,
+              borderRadius: p.rect ? 1 : '50%',
+              background: p.color,
+            }}
+            initial={{ x: 0, y: 0, opacity: 1, scale: 1, rotate: 0 }}
+            animate={{
+              x: Math.cos((p.a * Math.PI) / 180) * dist,
+              y: Math.sin((p.a * Math.PI) / 180) * dist + 40,
+              opacity: 0,
+              scale: 0,
+              rotate: p.rot,
+            }}
+            transition={{ duration: 1.0 + Math.random() * 0.8, delay: p.delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+          />
+        );
+      })}
     </div>
   );
 }

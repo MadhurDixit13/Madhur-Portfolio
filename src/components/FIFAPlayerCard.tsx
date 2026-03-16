@@ -6,7 +6,7 @@ import {
   Trophy, Briefcase, Mail, Linkedin,
   Github, Phone, MapPin, ChevronDown, ChevronUp, ExternalLink, BookOpen, Zap
 } from 'lucide-react';
-import { PlayerData, Project, Experience } from '@/types/player';
+import { PlayerData, Project, Experience, Blog } from '@/types/player';
 import TacticalBoard from './TacticalBoard';
 
 // ─── Animated counter ────────────────────────────────────────────────────────
@@ -457,15 +457,14 @@ function CareerTimeline({ experiences }: { experiences: Experience[] }) {
 // ─── Sign Me CTA ─────────────────────────────────────────────────────────────
 function SignMeCard({ email, linkedin }: { email: string; linkedin: string }) {
   const [signed, setSigned] = useState(false);
-  const [copied, setCopied] = useState(false);
 
-  const handleSign = async () => {
+  const handleSign = () => {
     setSigned(true);
-    try {
-      await navigator.clipboard.writeText(email);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    } catch { /* clipboard blocked */ }
+    const subject = encodeURIComponent("We Want to Sign You — Let's Begin Talks ⚽");
+    const body = encodeURIComponent(
+      `Hi Madhur,\n\nWe came across your portfolio and we're impressed by your work. We'd love to discuss an opportunity with you.\n\nLooking forward to connecting!\n`
+    );
+    window.open(`mailto:${email}?subject=${subject}&body=${body}`);
   };
 
   return (
@@ -491,10 +490,10 @@ function SignMeCard({ email, linkedin }: { email: string; linkedin: string }) {
               </motion.div>
             )}
           </AnimatePresence>
-          {copied && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          {signed && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
               className="text-emerald-400 text-xs mt-1 font-semibold" style={{ fontFamily: 'var(--font-rajdhani)' }}>
-              Email copied to clipboard
+              Opening your email client...
             </motion.div>
           )}
         </div>
@@ -502,7 +501,7 @@ function SignMeCard({ email, linkedin }: { email: string; linkedin: string }) {
           <motion.button onClick={handleSign} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
             className="font-black text-black px-4 py-2 rounded-xl text-xs tracking-widest border border-amber-300/70"
             style={{ fontFamily: 'var(--font-anton)', background: 'linear-gradient(135deg,#fbbf24,#f59e0b)' }}>
-            {signed ? 'SIGNED ✓' : 'SIGN ME'}
+            {signed ? 'DRAFTED ✓' : 'SIGN ME'}
           </motion.button>
           <a href={`https://${linkedin}`} target="_blank" rel="noopener noreferrer"
             className="font-black text-amber-300 px-3 py-2 rounded-xl text-xs tracking-widest border border-amber-400/30 hover:bg-amber-400/10 transition-colors flex items-center gap-1"
@@ -512,6 +511,56 @@ function SignMeCard({ email, linkedin }: { email: string; linkedin: string }) {
         </div>
       </div>
     </SectionCard>
+  );
+}
+
+// ─── Blog card with OGP image ─────────────────────────────────────────────────
+function BlogCard({ blog, index }: { blog: Blog; index: number }) {
+  const [thumb, setThumb] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch(`/api/ogp?url=${encodeURIComponent(blog.url)}`)
+      .then(r => r.json())
+      .then(d => { if (d.image) setThumb(d.image); })
+      .catch(() => {/* no preview on static hosts */});
+  }, [blog.url]);
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
+      <SectionCard className="border-l-[3px] border-l-sky-500/60 h-full flex flex-col p-0 overflow-hidden">
+        {/* OGP thumbnail */}
+        {thumb && (
+          <div className="w-full h-32 overflow-hidden shrink-0">
+            <img src={thumb} alt={blog.title} className="w-full h-full object-cover opacity-80" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 pointer-events-none" />
+          </div>
+        )}
+        <div className="p-4 flex flex-col flex-1">
+          <div className="flex justify-between items-start gap-2 mb-2">
+            <h5 className="text-white font-black text-sm leading-snug"
+              style={{ fontFamily: 'var(--font-rajdhani)' }}>{blog.title}</h5>
+            <span className="shrink-0 bg-sky-500/20 text-sky-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-sky-500/30">
+              {blog.platform}
+            </span>
+          </div>
+          <p className="text-amber-100/70 text-xs leading-relaxed mb-3 flex-1 font-semibold"
+            style={{ fontFamily: 'var(--font-rajdhani)' }}>{blog.description}</p>
+          <div className="flex items-center justify-between text-[10px] text-amber-400/40 mb-2">
+            <span>{blog.date}</span><span>{blog.readTime}</span>
+          </div>
+          <div className="flex flex-wrap gap-1 mb-3">
+            {blog.tags.map((tag, ti) => (
+              <span key={ti} className="bg-white/5 text-amber-200/50 px-2 py-0.5 rounded text-[10px] border border-white/8">{tag}</span>
+            ))}
+          </div>
+          <a href={blog.url} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-400/25 transition-colors"
+            style={{ fontFamily: 'var(--font-rajdhani)' }}>
+            <BookOpen className="w-3 h-3" /> Read on Medium
+          </a>
+        </div>
+      </SectionCard>
+    </motion.div>
   );
 }
 
@@ -531,6 +580,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
   const [prevTab, setPrevTab] = useState<TabId>('info');
   const [showLegacy, setShowLegacy] = useState(false);
   const [modalProject, setModalProject] = useState<Project | null>(null);
+  const [shareToast, setShareToast] = useState(false);
   const tabOrder = TABS.map(t => t.id);
 
   const switchTab = (id: TabId) => {
@@ -547,7 +597,33 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
     };
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
-  }, [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keyboard navigation: ← → to switch tabs
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (modalProject) return;
+      const cur = tabOrder.indexOf(activeTab);
+      if (e.key === 'ArrowRight' && cur < tabOrder.length - 1) switchTab(tabOrder[cur + 1] as TabId);
+      else if (e.key === 'ArrowLeft' && cur > 0) switchTab(tabOrder[cur - 1] as TabId);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activeTab, modalProject]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleShare = async () => {
+    const url = window.location.origin + window.location.pathname;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Madhur Dixit — Portfolio', url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setShareToast(true);
+        setTimeout(() => setShareToast(false), 2200);
+      }
+    } catch { /* cancelled */ }
+  };
 
   const direction = tabOrder.indexOf(activeTab) > tabOrder.indexOf(prevTab) ? 1 : -1;
 
@@ -602,14 +678,35 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
 
           {/* Header band */}
           <div className="mb-5">
-            <h1 className="text-white font-black tracking-wider"
-              style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(22px, 3.5vw, 38px)' }}>
-              {data.personalInfo.name}
-            </h1>
-            <p className="text-amber-300 font-semibold text-sm sm:text-base"
-              style={{ fontFamily: 'var(--font-rajdhani)' }}>
-              {data.personalInfo.position}
-            </p>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h1 className="text-white font-black tracking-wider"
+                  style={{ fontFamily: 'var(--font-anton)', fontSize: 'clamp(22px, 3.5vw, 38px)' }}>
+                  {data.personalInfo.name}
+                </h1>
+                <p className="text-amber-300 font-semibold text-sm sm:text-base"
+                  style={{ fontFamily: 'var(--font-rajdhani)' }}>
+                  {data.personalInfo.position}
+                </p>
+              </div>
+              {/* Share button */}
+              <div className="relative shrink-0 mt-1">
+                <motion.button onClick={handleShare} whileHover={{ scale: 1.07 }} whileTap={{ scale: 0.95 }}
+                  className="flex items-center gap-1.5 text-amber-400/70 hover:text-amber-300 text-[11px] font-black tracking-widest px-3 py-1.5 rounded-lg border border-amber-400/20 hover:border-amber-400/40 transition-colors"
+                  style={{ fontFamily: 'var(--font-anton)' }}>
+                  <ExternalLink className="w-3 h-3" /> SHARE
+                </motion.button>
+                <AnimatePresence>
+                  {shareToast && (
+                    <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                      className="absolute right-0 top-9 bg-emerald-500/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg whitespace-nowrap"
+                      style={{ fontFamily: 'var(--font-rajdhani)' }}>
+                      Link copied!
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
             <div className="flex flex-wrap gap-3 mt-2 text-xs text-amber-400/70"
               style={{ fontFamily: 'var(--font-rajdhani)' }}>
               <span className="flex items-center gap-1"><span>🇮🇳</span>Nationality: {data.personalInfo.nationality}</span>
@@ -646,6 +743,15 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                 )}
               </button>
             ))}
+          </div>
+
+          {/* Keyboard hint — desktop only */}
+          <div className="hidden sm:flex justify-end mb-2">
+            <span className="text-amber-400/25 text-[10px] flex items-center gap-1" style={{ fontFamily: 'var(--font-rajdhani)' }}>
+              <kbd className="bg-white/5 border border-white/10 rounded px-1 py-0.5 text-[9px]">←</kbd>
+              <kbd className="bg-white/5 border border-white/10 rounded px-1 py-0.5 text-[9px]">→</kbd>
+              navigate tabs
+            </span>
           </div>
 
           {/* Tab content */}
@@ -942,36 +1048,7 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                 {activeTab === 'blogs' && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {data.blogs.map((blog, i) => (
-                      <motion.div key={i}
-                        initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1 }}>
-                        <SectionCard className="border-l-[3px] border-l-sky-500/60 h-full flex flex-col">
-                          <div className="flex justify-between items-start gap-2 mb-2">
-                            <h5 className="text-white font-black text-sm leading-snug"
-                              style={{ fontFamily: 'var(--font-rajdhani)' }}>{blog.title}</h5>
-                            <span className="shrink-0 bg-sky-500/20 text-sky-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-sky-500/30">
-                              {blog.platform}
-                            </span>
-                          </div>
-                          <p className="text-amber-100/70 text-xs leading-relaxed mb-3 flex-1 font-semibold"
-                            style={{ fontFamily: 'var(--font-rajdhani)' }}>{blog.description}</p>
-                          <div className="flex items-center justify-between text-[10px] text-amber-400/40 mb-2">
-                            <span>{blog.date}</span><span>{blog.readTime}</span>
-                          </div>
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            {blog.tags.map((tag, ti) => (
-                              <span key={ti} className="bg-white/5 text-amber-200/50 px-2 py-0.5 rounded text-[10px] border border-white/8">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                          <a href={blog.url} target="_blank" rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 text-xs font-bold px-3 py-1.5 rounded-lg border border-amber-400/25 transition-colors"
-                            style={{ fontFamily: 'var(--font-rajdhani)' }}>
-                            <BookOpen className="w-3 h-3" /> Read on Medium
-                          </a>
-                        </SectionCard>
-                      </motion.div>
+                      <BlogCard key={i} blog={blog} index={i} />
                     ))}
                   </div>
                 )}
