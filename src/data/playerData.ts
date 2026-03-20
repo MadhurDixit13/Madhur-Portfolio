@@ -209,16 +209,20 @@ export const playerData: PlayerData = {
     {
       title: "In the Age of LLMs, Is Dual-Submission Homework Dead?",
       institution: "ASEE Annual Conference & Exposition 2025",
-      description: "Accepted paper examining the impact of Large Language Models on traditional dual-submission homework practices in engineering education",
+      description: "Published paper examining the impact of Large Language Models on traditional dual-submission homework practices in engineering education",
       focus: "Education Technology",
-      conferenceId: "ID 47819"
+      conferenceId: "ID 47819",
+      status: "Published",
+      url: "https://peer.asee.org/in-the-age-of-llms-is-dual-submission-homework-dead.pdf"
     },
     {
       title: "Reflective Homework as a Learning Tool: Evidence from Comparing 13 Years of Dual vs. Single Submission",
       institution: "FIE 2025: Frontiers in Education Conference",
-      description: "Accepted research paper analysing 13 years of data comparing dual versus single submission homework approaches in educational settings",
+      description: "Published research paper analysing 13 years of data comparing dual versus single submission homework approaches in educational settings",
       focus: "Educational Research",
-      conferenceId: "ID 1571118602"
+      conferenceId: "ID 1571118602",
+      status: "Published",
+      url: "https://arxiv.org/abs/2508.09314"
     }
   ],
 
@@ -359,6 +363,24 @@ export const playerData: PlayerData = {
       relation: "COLLEAGUE",
       quote: "I had the pleasure of working with Madhur in the same team at Perch Furniture and Digiliyo Technologies. He is highly skilled in React.js, creating dynamic and user-friendly interfaces with clean, efficient code. On the backend, his expertise in Node.js, MongoDB, and RESTful APIs enables him to build scalable and high-performance applications with seamless data flow. Beyond his technical skills, Madhur is a great team player, always ready to share knowledge, mentor others, and collaborate effectively. His technical proficiency, problem-solving mindset, and dedication make him a valuable asset to any team. I highly recommend Madhur for any role requiring a talented full-stack developer.",
       rating: 95,
+      linkedinUrl: "https://www.linkedin.com/in/madixit/details/recommendations/",
+    },
+    {
+      name: "Abhinaya Krishnamoorthy",
+      title: "User Experience Designer",
+      company: "AllyIn.ai & Runara.ai",
+      relation: "TEAMMATE",
+      quote: "I had the chance to work with Madhur at both AllyIn and Runara, and he's one of those people who just gets things done. He takes complex infrastructure problems and works through them with a level of care and ownership that's hard to find, especially early in a career. He built out a GPU telemetry and performance monitoring system from the ground up, with a real understanding of how the pieces fit together at scale. He's sharp, self-directed, and brings a lot more to the table than his experience level suggests. Any team working on AI infrastructure or ML systems would be lucky to have him.",
+      rating: 97,
+      linkedinUrl: "https://www.linkedin.com/in/madixit/details/recommendations/",
+    },
+    {
+      name: "Gayatri Puwar",
+      title: "Fractional AI Head of Product & GTM",
+      company: "Gradient Advisory",
+      relation: "SENIOR",
+      quote: "Madhur is the kind of engineer you want in your corner at an early-stage company — and I say that having watched him hold together the entire product engineering stack at Runara.ai while we were moving fast on GTM. He owned it all: infrastructure, backend, frontend, UX — no silos as we couldn't afford it — just execution. What struck me most was how effectively he bridged the gap between product and engineering. He had a knack for distilling complex technical realities into clear, actionable terms, which made alignment genuinely easier. Strong work ethic, solid technical skills in Gen AI observability and agentic space, great collaborator. I'd work with him again in a heartbeat.",
+      rating: 98,
       linkedinUrl: "https://www.linkedin.com/in/madixit/details/recommendations/",
     },
   ],

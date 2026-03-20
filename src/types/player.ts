@@ -34,6 +34,8 @@ export interface Research {
   description: string;
   focus: string;
   conferenceId?: string;
+  url?: string;
+  status?: string;
 }
 
 export interface Project {

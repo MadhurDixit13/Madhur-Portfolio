@@ -1425,20 +1425,34 @@ export default function FIFAPlayerCard({ data }: FIFAPlayerCardProps) {
                       <motion.div key={i}
                         initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}>
-                        <SectionCard className="border-l-[3px] border-l-purple-500/60 h-full">
+                        <SectionCard className="border-l-[3px] border-l-purple-500/60 h-full flex flex-col">
                           <div className="flex justify-between items-start gap-2 mb-2">
                             <h5 className="text-white font-black text-sm leading-snug"
                               style={{ fontFamily: 'var(--font-rajdhani)' }}>{r.title}</h5>
-                            <span className="shrink-0 bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-500/30">
-                              {r.focus}
-                            </span>
+                            <div className="flex flex-col items-end gap-1 shrink-0">
+                              <span className="bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-500/30">
+                                {r.focus}
+                              </span>
+                              {r.status && (
+                                <span className="bg-green-500/20 text-green-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-green-500/30">
+                                  {r.status}
+                                </span>
+                              )}
+                            </div>
                           </div>
                           <p className="text-amber-200/60 text-xs mb-1">{r.institution}</p>
                           {r.conferenceId && (
                             <p className="text-amber-400/40 text-xs font-mono mb-2">{r.conferenceId}</p>
                           )}
-                          <p className="text-amber-100/70 text-xs leading-relaxed font-semibold"
+                          <p className="text-amber-100/70 text-xs leading-relaxed font-semibold flex-1"
                             style={{ fontFamily: 'var(--font-rajdhani)' }}>{r.description}</p>
+                          {r.url && (
+                            <a href={r.url} target="_blank" rel="noopener noreferrer"
+                              className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-400 hover:text-amber-300 transition-colors border border-amber-400/30 hover:border-amber-300/50 rounded px-2 py-1 w-fit"
+                              style={{ fontFamily: 'var(--font-rajdhani)' }}>
+                              READ PAPER ↗
+                            </a>
+                          )}
                         </SectionCard>
                       </motion.div>
                     ))}
